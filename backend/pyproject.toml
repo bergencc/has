@@ -1,0 +1,6 @@
+[project]
+name = "backend"
+version = "0.1.0"
+description = "The backend for the hide and seek platform"
+requires-python = ">=3.9"
+dependencies = []
