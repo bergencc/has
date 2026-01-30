@@ -13,6 +13,7 @@ import type {
     AttemptResponse,
     HintResponse,
     TokenResponse,
+    TeamRankingEntry,
 } from './types';
 
 const API_BASE = '/api';
@@ -119,6 +120,12 @@ class ApiClient {
         const { data } = await this.client.get('/teams', {
             params: { search, limit, offset },
         });
+
+        return data;
+    }
+
+    async getTeamRankings(): Promise<TeamRankingEntry[]> {
+        const { data } = await this.client.get('/teams/rankings');
 
         return data;
     }

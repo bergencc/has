@@ -54,6 +54,18 @@ class TeamListResponse(BaseModel):
         from_attributes = True
 
 
+class TeamRankingResponse(BaseModel):
+    rank: int
+    team_id: int
+    team_name: str
+    member_count: int
+    events_registered: int
+    total_points: int
+    completed_challenges: int
+    hints_used: int
+    hint_usage_score: Optional[float] = None
+
+
 # Join Request schemas
 class JoinRequestCreate(BaseModel):
     team_id: int

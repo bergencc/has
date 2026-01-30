@@ -1,6 +1,6 @@
 from fastapi import APIRouter, Depends, HTTPException, status
 from sqlalchemy.ext.asyncio import AsyncSession
-from sqlalchemy import select, and_, or_
+from sqlalchemy import select, and_, or_, func
 from sqlalchemy.orm import selectinload
 from datetime import datetime, timezone, timedelta
 from typing import List
@@ -11,10 +11,12 @@ from app.core.security import get_current_user
 from app.models.user import User
 from app.models.team import Team, TeamMember, JoinRequest, JoinRequestVote
 from app.models.event import EventRegistration, Event
+from app.models.challenge import Attempt, HintUse
 from app.schemas.team import (
     TeamCreate, TeamUpdate, TeamResponse, TeamListResponse,
     TeamMemberResponse, JoinRequestCreate, JoinRequestVoteCreate,
-    JoinRequestResponse, JoinRequestVoteResponse, TeamMembershipStatus
+    JoinRequestResponse, JoinRequestVoteResponse, TeamMembershipStatus,
+    TeamRankingResponse
 )
 from app.schemas.user import UserPublic
 
@@ -237,6 +239,103 @@ async def list_teams(
 
         for t in teams
     ]
+
+
+@router.get("/rankings", response_model=List[TeamRankingResponse])
+async def get_team_rankings(
+        current_user: User = Depends(get_current_user),
+        db: AsyncSession = Depends(get_db)
+):
+    """Global team rankings across all events."""
+    member_subquery = (
+        select(
+            TeamMember.team_id.label("team_id"),
+            func.count(TeamMember.id).label("member_count")
+        )
+        .where(TeamMember.left_at.is_(None))
+        .group_by(TeamMember.team_id)
+        .subquery()
+    )
+
+    registration_subquery = (
+        select(
+            EventRegistration.team_id.label("team_id"),
+            func.count(EventRegistration.id).label("events_registered")
+        )
+        .where(EventRegistration.status == "registered")
+        .group_by(EventRegistration.team_id)
+        .subquery()
+    )
+
+    attempts_subquery = (
+        select(
+            Attempt.team_id.label("team_id"),
+            func.coalesce(func.sum(Attempt.points_awarded), 0).label("total_points"),
+            func.count(func.distinct(Attempt.challenge_id)).label("completed_challenges")
+        )
+        .where(Attempt.is_correct == True)
+        .group_by(Attempt.team_id)
+        .subquery()
+    )
+
+    hints_subquery = (
+        select(
+            HintUse.team_id.label("team_id"),
+            func.count(HintUse.id).label("hints_used")
+        )
+        .group_by(HintUse.team_id)
+        .subquery()
+    )
+
+    query = (
+        select(
+            Team.id.label("team_id"),
+            Team.name.label("team_name"),
+            func.coalesce(member_subquery.c.member_count, 0).label("member_count"),
+            func.coalesce(registration_subquery.c.events_registered, 0).label("events_registered"),
+            func.coalesce(attempts_subquery.c.total_points, 0).label("total_points"),
+            func.coalesce(attempts_subquery.c.completed_challenges, 0).label("completed_challenges"),
+            func.coalesce(hints_subquery.c.hints_used, 0).label("hints_used")
+        )
+        .where(Team.disbanded_at.is_(None))
+        .outerjoin(member_subquery, member_subquery.c.team_id == Team.id)
+        .outerjoin(registration_subquery, registration_subquery.c.team_id == Team.id)
+        .outerjoin(attempts_subquery, attempts_subquery.c.team_id == Team.id)
+        .outerjoin(hints_subquery, hints_subquery.c.team_id == Team.id)
+        .order_by(
+            func.coalesce(attempts_subquery.c.total_points, 0).desc(),
+            func.coalesce(attempts_subquery.c.completed_challenges, 0).desc(),
+            func.coalesce(hints_subquery.c.hints_used, 0).asc(),
+            Team.name.asc()
+        )
+    )
+
+    result = await db.execute(query)
+    rows = result.all()
+
+    rankings: List[TeamRankingResponse] = []
+
+    for index, row in enumerate(rows, start=1):
+        completed = row.completed_challenges or 0
+        hints_used = row.hints_used or 0
+        hint_usage_score = None
+
+        if completed > 0:
+            hint_usage_score = hints_used / completed
+
+        rankings.append(TeamRankingResponse(
+            rank=index,
+            team_id=row.team_id,
+            team_name=row.team_name,
+            member_count=row.member_count or 0,
+            events_registered=row.events_registered or 0,
+            total_points=row.total_points or 0,
+            completed_challenges=completed,
+            hints_used=hints_used,
+            hint_usage_score=hint_usage_score
+        ))
+
+    return rankings
 
 
 @router.get("/{team_id}", response_model=TeamResponse)

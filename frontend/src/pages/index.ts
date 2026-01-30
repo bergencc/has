@@ -4,5 +4,6 @@ export { DashboardPage } from './DashboardPage';
 export { TeamPage } from './TeamPage';
 export { EventsPage } from './EventsPage';
 export { EventDetailPage } from './EventDetailPage';
+export { TeamRankingsPage } from './TeamRankingsPage';
 export { AdminPage } from './AdminPage';
 export { AdminEventPage } from './AdminEventPage';

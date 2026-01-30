@@ -1,6 +1,6 @@
 import React from 'react';
 import { Link, useNavigate } from 'react-router-dom';
-import { Ghost, Menu, X, LogOut, User, Users, Calendar } from 'lucide-react';
+import { Ghost, Menu, X, LogOut, User, Users, Calendar, Trophy } from 'lucide-react';
 import { useAuthStore } from '@/lib/store';
 import { Button } from '../ui/Button';
 
@@ -43,6 +43,13 @@ export function Header() {
                                 >
                                     <Users className="w-4 h-4" />
                                     Team
+                                </Link>
+                                <Link
+                                    to="/rankings"
+                                    className="flex items-center gap-2 text-mist-300 hover:text-white transition-colors"
+                                >
+                                    <Trophy className="w-4 h-4" />
+                                    Rankings
                                 </Link>
                                 {user?.role === 'admin' && (
                                     <Link
@@ -105,6 +112,14 @@ export function Header() {
                                 >
                                     <Users className="w-4 h-4 inline mr-2" />
                                     Team
+                                </Link>
+                                <Link
+                                    to="/rankings"
+                                    className="block px-3 py-2 rounded-lg text-mist-200 hover:bg-void-50"
+                                    onClick={() => setMobileMenuOpen(false)}
+                                >
+                                    <Trophy className="w-4 h-4 inline mr-2" />
+                                    Rankings
                                 </Link>
                                 {user?.role === 'admin' && (
                                     <Link

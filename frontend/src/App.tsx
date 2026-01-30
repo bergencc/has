@@ -9,6 +9,7 @@ import {
     TeamPage,
     EventsPage,
     EventDetailPage,
+    TeamRankingsPage,
     AdminPage,
     AdminEventPage,
 } from '@/pages';
@@ -73,6 +74,7 @@ export default function App() {
             >
                 <Route path="/" element={<DashboardPage />} />
                 <Route path="/team" element={<TeamPage />} />
+                <Route path="/rankings" element={<TeamRankingsPage />} />
                 <Route path="/events" element={<EventsPage />} />
                 <Route path="/events/:eventId" element={<EventDetailPage />} />
             </Route>

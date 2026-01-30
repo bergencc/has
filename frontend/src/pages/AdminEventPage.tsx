@@ -48,9 +48,28 @@ export function AdminEventPage() {
     const [event, setEvent] = useState<Event | null>(null);
     const [challenges, setChallenges] = useState<ChallengeAdmin[]>([]);
     const [loading, setLoading] = useState(true);
+    const [status, setStatus] = useState<Event['status']>('draft');
+    const [startsAt, setStartsAt] = useState('');
+    const [endsAt, setEndsAt] = useState('');
+    const [saving, setSaving] = useState(false);
+    const [saveError, setSaveError] = useState('');
     const [showChallengeModal, setShowChallengeModal] = useState(false);
     const [editingChallenge, setEditingChallenge] = useState<ChallengeAdmin | null>(null);
     const [error, setError] = useState('');
+
+    const toLocalInputValue = (iso: string) => {
+        const date = new Date(iso);
+
+        if (Number.isNaN(date.getTime())) {
+            return '';
+        }
+
+        const pad = (value: number) => String(value).padStart(2, '0');
+
+        return `${date.getFullYear()}-${pad(date.getMonth() + 1)}-${pad(date.getDate())}T${pad(
+            date.getHours()
+        )}:${pad(date.getMinutes())}`;
+    };
 
     useEffect(() => {
         if (eventId) {
@@ -67,6 +86,9 @@ export function AdminEventPage() {
 
             setEvent(eventData);
             setChallenges(challengesData as ChallengeAdmin[]);
+            setStatus(eventData.status);
+            setStartsAt(toLocalInputValue(eventData.starts_at));
+            setEndsAt(toLocalInputValue(eventData.ends_at));
         } catch (error) {
             console.error('Failed to load data:', error);
         } finally {
@@ -95,6 +117,59 @@ export function AdminEventPage() {
     const handleCreateChallenge = () => {
         setEditingChallenge(null);
         setShowChallengeModal(true);
+    };
+
+    const handleActivateNow = () => {
+        if (!event) return;
+
+        const now = new Date();
+        const existingDuration =
+            new Date(event.ends_at).getTime() - new Date(event.starts_at).getTime();
+        const durationMs = Number.isFinite(existingDuration) && existingDuration > 0
+            ? existingDuration
+            : 2 * 60 * 60 * 1000;
+
+        const newStart = now;
+        const newEnd = new Date(now.getTime() + durationMs);
+
+        setStatus('active');
+        setStartsAt(toLocalInputValue(newStart.toISOString()));
+        setEndsAt(toLocalInputValue(newEnd.toISOString()));
+    };
+
+    const handleSaveEvent = async () => {
+        if (!event) return;
+
+        setSaveError('');
+
+        if (!startsAt || !endsAt) {
+            setSaveError('Start and end times are required.');
+            return;
+        }
+
+        const startsIso = new Date(startsAt).toISOString();
+        const endsIso = new Date(endsAt).toISOString();
+
+        setSaving(true);
+
+        try {
+            const updated = await api.updateEvent(event.id, {
+                status,
+                starts_at: startsIso,
+                ends_at: endsIso,
+            });
+
+            setEvent(updated);
+            setStatus(updated.status);
+            setStartsAt(toLocalInputValue(updated.starts_at));
+            setEndsAt(toLocalInputValue(updated.ends_at));
+        } catch (err: unknown) {
+            const error = err as { response?: { data?: { detail?: string } } };
+
+            setSaveError(error.response?.data?.detail || 'Failed to update event');
+        } finally {
+            setSaving(false);
+        }
     };
 
     if (loading) {
@@ -169,6 +244,61 @@ export function AdminEventPage() {
                         <p className="text-mist-500">Challenges</p>
                         <p className="text-mist-200">{challenges.length} total</p>
                     </div>
+                </div>
+            </Card>
+
+            {/* Event Controls */}
+            <Card className="p-6">
+                <div className="flex items-center justify-between mb-4">
+                    <h2 className="text-lg font-semibold text-white">Event Controls</h2>
+                    <div className="flex items-center gap-2">
+                        <Button variant="ghost" size="sm" onClick={handleActivateNow}>
+                            Activate Now
+                        </Button>
+                        <Button variant="primary" size="sm" onClick={handleSaveEvent} loading={saving}>
+                            <Save className="w-4 h-4" />
+                            Save Changes
+                        </Button>
+                    </div>
+                </div>
+
+                {saveError && <Alert type="error" className="mb-4">{saveError}</Alert>}
+
+                <Alert type="info" className="mb-4">
+                    Students can only access challenges and the leaderboard when the event is
+                    <strong className="text-white"> active</strong> and the current time falls between the
+                    start and end time.
+                </Alert>
+
+                <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+                    <div>
+                        <label className="block text-sm font-medium text-mist-300 mb-2">
+                            Status
+                        </label>
+                        <select
+                            value={status}
+                            onChange={(e) => setStatus(e.target.value as Event['status'])}
+                            className="w-full px-4 py-3 bg-void-200 border border-phantom-900/30 rounded-lg text-mist-100 focus:outline-none focus:border-phantom-600 focus:ring-1 focus:ring-phantom-600 transition-colors"
+                        >
+                            <option value="draft">Draft</option>
+                            <option value="registration">Registration</option>
+                            <option value="active">Active</option>
+                            <option value="completed">Completed</option>
+                            <option value="cancelled">Cancelled</option>
+                        </select>
+                    </div>
+                    <Input
+                        label="Start Time"
+                        type="datetime-local"
+                        value={startsAt}
+                        onChange={(e) => setStartsAt(e.target.value)}
+                    />
+                    <Input
+                        label="End Time"
+                        type="datetime-local"
+                        value={endsAt}
+                        onChange={(e) => setEndsAt(e.target.value)}
+                    />
                 </div>
             </Card>
 

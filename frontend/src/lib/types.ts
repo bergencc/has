@@ -41,6 +41,18 @@ export interface TeamListItem {
     created_at: string;
 }
 
+export interface TeamRankingEntry {
+    rank: number;
+    team_id: number;
+    team_name: string;
+    member_count: number;
+    events_registered: number;
+    total_points: number;
+    completed_challenges: number;
+    hints_used: number;
+    hint_usage_score: number | null;
+}
+
 export interface JoinRequestVote {
     id: number;
     voter: UserPublic;
