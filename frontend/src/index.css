@@ -1,2 +1,124 @@
 @import "tailwindcss";
 @config "../tailwind.config.js";
+
+@layer base {
+    * {
+        @apply border-void-50/20;
+    }
+
+    body {
+        @apply bg-void-300 text-mist-200 font-body antialiased;
+        background-image:
+                url("data:image/svg+xml,%3Csvg viewBox='0 0 256 256' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noise'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noise)' opacity='0.03'/%3E%3C/svg%3E"),
+                linear-gradient(135deg, #0d0d0f 0%, #111114 50%, #1a0a25 100%);
+        background-attachment: fixed;
+        min-height: 100vh;
+    }
+
+    ::selection {
+        @apply bg-phantom-500/50 text-white;
+    }
+
+    /* Custom scrollbar */
+    ::-webkit-scrollbar {
+        width: 8px;
+        height: 8px;
+    }
+
+    ::-webkit-scrollbar-track {
+        @apply bg-void-200;
+    }
+
+    ::-webkit-scrollbar-thumb {
+        @apply bg-phantom-700 rounded-full;
+    }
+
+    ::-webkit-scrollbar-thumb:hover {
+        @apply bg-phantom-600;
+    }
+}
+
+@layer components {
+    .card-hover {
+        @apply bg-void-100/80 backdrop-blur-sm border border-phantom-900/30 rounded-xl transition-all duration-300 hover:border-phantom-700/50 hover:shadow-glow-purple;
+    }
+
+    .btn {
+        @apply inline-flex items-center justify-center gap-2 px-4 py-2 rounded-lg font-semibold transition-all duration-200 disabled:opacity-50 disabled:cursor-not-allowed;
+    }
+
+    .btn-primary {
+        @apply inline-flex items-center justify-center gap-2 px-4 py-2 rounded-lg font-semibold transition-all duration-200 disabled:opacity-50 disabled:cursor-not-allowed bg-phantom-600 text-white hover:bg-phantom-500 active:bg-phantom-700 shadow-glow-purple/50;
+    }
+
+    .btn-secondary {
+        @apply inline-flex items-center justify-center gap-2 px-4 py-2 rounded-lg font-semibold transition-all duration-200 disabled:opacity-50 disabled:cursor-not-allowed bg-void-50 text-mist-200 border border-phantom-800 hover:border-phantom-600 hover:bg-void-100;
+    }
+
+    .btn-ghost {
+        @apply inline-flex items-center justify-center gap-2 px-4 py-2 rounded-lg font-semibold transition-all duration-200 disabled:opacity-50 disabled:cursor-not-allowed text-mist-300 hover:text-white hover:bg-void-50;
+    }
+
+    .btn-danger {
+        @apply inline-flex items-center justify-center gap-2 px-4 py-2 rounded-lg font-semibold transition-all duration-200 disabled:opacity-50 disabled:cursor-not-allowed bg-blood-700 text-white hover:bg-blood-600;
+    }
+
+    .input {
+        @apply w-full px-4 py-3 bg-void-200 border border-phantom-900/30 rounded-lg text-mist-100 placeholder:text-mist-600 focus:outline-none focus:border-phantom-600 focus:ring-1 focus:ring-phantom-600 transition-colors;
+    }
+
+    .label {
+        @apply block text-sm font-medium text-mist-300 mb-2;
+    }
+
+    .badge {
+        @apply inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium;
+    }
+
+    .badge-phantom {
+        @apply inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-phantom-900/50 text-phantom-300 border border-phantom-700/30;
+    }
+
+    .badge-specter {
+        @apply inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-specter-900/50 text-specter-400 border border-specter-700/30;
+    }
+
+    .badge-blood {
+        @apply inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-blood-900/50 text-blood-400 border border-blood-700/30;
+    }
+
+    .page-title {
+        @apply font-display text-3xl md:text-4xl font-bold text-white tracking-tight;
+    }
+
+    .section-title {
+        @apply font-display text-xl md:text-2xl font-semibold text-mist-100;
+    }
+
+    .text-glow {
+        text-shadow: 0 0 20px rgba(139, 63, 207, 0.5);
+    }
+
+    /* Skeleton loader */
+    .skeleton {
+        @apply bg-void-50 rounded animate-pulse;
+    }
+}
+
+@layer utilities {
+    .card {
+        @apply bg-void-100/80 backdrop-blur-sm border border-phantom-900/30 rounded-xl;
+    }
+
+    .glass {
+        @apply bg-void-100/60 backdrop-blur-md border border-white/5;
+    }
+
+    .gradient-text {
+        @apply bg-linear-to-r from-phantom-400 to-specter-400 bg-clip-text text-transparent;
+    }
+
+    .fog-overlay {
+        background: radial-gradient(ellipse at bottom, rgba(45, 13, 69, 0.3) 0%, transparent 70%);
+    }
+}
