@@ -7,6 +7,7 @@ import {
     AuthCallbackPage,
     DashboardPage,
     TeamPage,
+    ProfilePage,
     EventsPage,
     EventDetailPage,
     TeamRankingsPage,
@@ -74,6 +75,7 @@ export default function App() {
             >
                 <Route path="/" element={<DashboardPage />} />
                 <Route path="/team" element={<TeamPage />} />
+                <Route path="/profile" element={<ProfilePage />} />
                 <Route path="/rankings" element={<TeamRankingsPage />} />
                 <Route path="/events" element={<EventsPage />} />
                 <Route path="/events/:eventId" element={<EventDetailPage />} />

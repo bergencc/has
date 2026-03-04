@@ -60,10 +60,13 @@ export function Header() {
                                     </Link>
                                 )}
                                 <div className="flex items-center gap-3 pl-4 border-l border-phantom-800">
-                  <span className="text-mist-300 text-sm">
-                    <User className="w-4 h-4 inline mr-1" />
-                      {user?.dog_tag}
-                  </span>
+                                    <Link
+                                        to="/profile"
+                                        className="text-mist-300 text-sm hover:text-white transition-colors"
+                                    >
+                                        <User className="w-4 h-4 inline mr-1" />
+                                        {user?.dog_tag}
+                                    </Link>
                                     <Button variant="ghost" size="sm" onClick={handleLogout}>
                                         <LogOut className="w-4 h-4" />
                                     </Button>
@@ -97,6 +100,14 @@ export function Header() {
                     Signed in as <strong className="text-white">{user?.dog_tag}</strong>
                   </span>
                                 </div>
+                                <Link
+                                    to="/profile"
+                                    className="block px-3 py-2 rounded-lg text-mist-200 hover:bg-void-50"
+                                    onClick={() => setMobileMenuOpen(false)}
+                                >
+                                    <User className="w-4 h-4 inline mr-2" />
+                                    Profile
+                                </Link>
                                 <Link
                                     to="/events"
                                     className="block px-3 py-2 rounded-lg text-mist-200 hover:bg-void-50"

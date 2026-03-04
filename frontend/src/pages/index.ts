@@ -2,6 +2,7 @@ export { LoginPage } from './LoginPage';
 export { AuthCallbackPage } from './AuthCallbackPage';
 export { DashboardPage } from './DashboardPage';
 export { TeamPage } from './TeamPage';
+export { ProfilePage } from './ProfilePage';
 export { EventsPage } from './EventsPage';
 export { EventDetailPage } from './EventDetailPage';
 export { TeamRankingsPage } from './TeamRankingsPage';
