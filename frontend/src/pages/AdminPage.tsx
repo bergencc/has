@@ -178,6 +178,14 @@ function CreateEventModal({ isOpen, onClose, onSuccess }: CreateEventModalProps)
         ends_at: '',
         min_team_size: 1,
         max_team_size: 4,
+        ranking_point: 0,
+        treat_point: 0,
+        decoding_point: 0,
+        perception_point: 0,
+        logic_point: 0,
+        resilience_point: 0,
+        arcane_point: 0,
+        insight_point: 0,
     });
 
     const handleSubmit = async (e: React.FormEvent) => {
@@ -203,6 +211,14 @@ function CreateEventModal({ isOpen, onClose, onSuccess }: CreateEventModalProps)
                 ends_at: '',
                 min_team_size: 1,
                 max_team_size: 4,
+                ranking_point: 0,
+                treat_point: 0,
+                decoding_point: 0,
+                perception_point: 0,
+                logic_point: 0,
+                resilience_point: 0,
+                arcane_point: 0,
+                insight_point: 0,
             });
         } catch (err: unknown) {
             const error = err as { response?: { data?: { detail?: string } } };
@@ -294,6 +310,87 @@ function CreateEventModal({ isOpen, onClose, onSuccess }: CreateEventModalProps)
                             setFormData({ ...formData, max_team_size: parseInt(e.target.value) })
                         }
                         required
+                    />
+                </div>
+
+                <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
+                    <Input
+                        label="Event Ranking"
+                        type="number"
+                        min={0}
+                        value={formData.ranking_point}
+                        onChange={(e) =>
+                            setFormData({ ...formData, ranking_point: parseInt(e.target.value) || 0 })
+                        }
+                    />
+                    <Input
+                        label="Event Treat"
+                        type="number"
+                        min={0}
+                        value={formData.treat_point}
+                        onChange={(e) =>
+                            setFormData({ ...formData, treat_point: parseInt(e.target.value) || 0 })
+                        }
+                    />
+                    <Input
+                        label="Decoding"
+                        type="number"
+                        min={0}
+                        max={100}
+                        value={formData.decoding_point}
+                        onChange={(e) =>
+                            setFormData({ ...formData, decoding_point: parseInt(e.target.value) || 0 })
+                        }
+                    />
+                    <Input
+                        label="Perception"
+                        type="number"
+                        min={0}
+                        max={100}
+                        value={formData.perception_point}
+                        onChange={(e) =>
+                            setFormData({ ...formData, perception_point: parseInt(e.target.value) || 0 })
+                        }
+                    />
+                    <Input
+                        label="Logic"
+                        type="number"
+                        min={0}
+                        max={100}
+                        value={formData.logic_point}
+                        onChange={(e) =>
+                            setFormData({ ...formData, logic_point: parseInt(e.target.value) || 0 })
+                        }
+                    />
+                    <Input
+                        label="Resilience"
+                        type="number"
+                        min={0}
+                        max={100}
+                        value={formData.resilience_point}
+                        onChange={(e) =>
+                            setFormData({ ...formData, resilience_point: parseInt(e.target.value) || 0 })
+                        }
+                    />
+                    <Input
+                        label="Arcane"
+                        type="number"
+                        min={0}
+                        max={100}
+                        value={formData.arcane_point}
+                        onChange={(e) =>
+                            setFormData({ ...formData, arcane_point: parseInt(e.target.value) || 0 })
+                        }
+                    />
+                    <Input
+                        label="Insight"
+                        type="number"
+                        min={0}
+                        max={100}
+                        value={formData.insight_point}
+                        onChange={(e) =>
+                            setFormData({ ...formData, insight_point: parseInt(e.target.value) || 0 })
+                        }
                     />
                 </div>
 
