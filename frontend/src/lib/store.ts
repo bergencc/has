@@ -9,7 +9,7 @@ interface AuthState {
 
     // Actions
     initialize: () => Promise<void>;
-    login: (email: string, nickname: string) => Promise<void>;
+    login: (email: string) => Promise<void>;
     logout: () => void;
     updateUser: (updates: Partial<User>) => void;
 }
@@ -37,8 +37,8 @@ export const useAuthStore = create<AuthState>((set, get) => ({
         }
     },
 
-    login: async (email: string, nickname: string) => {
-        const response = await api.devLogin(email, nickname);
+    login: async (email: string) => {
+        const response = await api.devLogin(email);
 
         set({ user: response.user, isAuthenticated: true });
     },

@@ -10,7 +10,8 @@ interface TeamCardProps {
 }
 
 export function TeamCard({ team, onClick, showMembers = false }: TeamCardProps) {
-    const memberCount = 'member_count' in team ? team.member_count : team.members?.length || 0;
+    const isFullTeam = (value: Team | TeamListItem): value is Team => 'members' in value;
+    const memberCount = isFullTeam(team) ? team.members.length : team.member_count;
 
     return (
         <Card hover={!!onClick} onClick={onClick} className="p-5">
@@ -27,7 +28,7 @@ export function TeamCard({ team, onClick, showMembers = false }: TeamCardProps) 
                 </Badge>
             </div>
 
-            {showMembers && 'members' in team && team.members && (
+            {showMembers && isFullTeam(team) && (
                 <div className="mt-4 pt-4 border-t border-phantom-900/20">
                     <p className="text-xs text-mist-500 mb-2">Members</p>
                     <div className="flex flex-wrap gap-2">
@@ -36,7 +37,7 @@ export function TeamCard({ team, onClick, showMembers = false }: TeamCardProps) 
                                 key={member.id}
                                 variant={member.role === 'captain' ? 'specter' : 'mist'}
                             >
-                                {member.user.nickname}
+                                {member.user.dog_tag}
                                 {member.role === 'captain' && ' ★'}
                             </Badge>
                         ))}

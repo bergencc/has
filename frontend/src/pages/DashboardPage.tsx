@@ -46,7 +46,7 @@ export function DashboardPage() {
             <div className="relative overflow-hidden rounded-2xl bg-linear-to-br from-phantom-900/50 to-void-100 border border-phantom-800/50 p-8">
                 <div className="relative z-10">
                     <h1 className="text-3xl font-display font-bold text-white">
-                        Welcome back, <span className="text-phantom-400">{user?.nickname}</span>
+                        Welcome back, <span className="text-phantom-400">{user?.dog_tag}</span>
                     </h1>
                     <p className="mt-2 text-mist-400">Ready to solve some mysteries?</p>
                 </div>

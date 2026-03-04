@@ -81,9 +81,9 @@ class ApiClient {
         return data;
     }
 
-    async devLogin(email: string, nickname: string): Promise<TokenResponse> {
+    async devLogin(email: string): Promise<TokenResponse> {
         const { data } = await this.client.post('/auth/dev-login', null, {
-            params: { email, nickname },
+            params: { email },
         });
 
         this.setToken(data.access_token);
@@ -97,7 +97,15 @@ class ApiClient {
         return data;
     }
 
-    async updateMe(update: { nickname?: string }): Promise<User> {
+    async updateMe(update: {
+        decoding?: number;
+        perception?: number;
+        logic?: number;
+        resilience?: number;
+        arcane?: number;
+        insight?: number;
+        treat?: number;
+    }): Promise<User> {
         const { data } = await this.client.patch('/auth/me', update);
 
         return data;

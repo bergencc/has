@@ -31,7 +31,7 @@ export function JoinRequestCard(
             <div className="flex items-start justify-between">
                 <div>
                     <div className="flex items-center gap-2">
-                        <span className="font-semibold text-white">{request.user.nickname}</span>
+                        <span className="font-semibold text-white">{request.user.dog_tag}</span>
                         {isMyRequest && <Badge variant="phantom">You</Badge>}
                     </div>
                     <p className="text-sm text-mist-400 mt-1">
@@ -84,7 +84,7 @@ export function JoinRequestCard(
                                 key={vote.id}
                                 variant={vote.vote === 'accept' ? 'specter' : 'blood'}
                             >
-                                {vote.voter.nickname}
+                                {vote.voter.dog_tag}
                                 {vote.vote === 'accept' ? (
                                     <Check className="w-3 h-3 ml-1" />
                                 ) : (

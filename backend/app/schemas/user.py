@@ -4,7 +4,14 @@ from datetime import datetime
 
 
 class UserBase(BaseModel):
-    nickname: str = Field(..., min_length=3, max_length=50)
+    dog_tag: str = Field(..., min_length=3, max_length=50)
+    decoding: int = Field(..., ge=0, le=100)
+    perception: int = Field(..., ge=0, le=100)
+    logic: int = Field(..., ge=0, le=100)
+    resilience: int = Field(..., ge=0, le=100)
+    arcane: int = Field(..., ge=0, le=100)
+    insight: int = Field(..., ge=0, le=100)
+    treat: int = Field(..., ge=0)
 
 
 class UserCreate(UserBase):
@@ -12,7 +19,13 @@ class UserCreate(UserBase):
 
 
 class UserUpdate(BaseModel):
-    nickname: Optional[str] = Field(None, min_length=3, max_length=50)
+    decoding: Optional[int] = Field(None, ge=0, le=100)
+    perception: Optional[int] = Field(None, ge=0, le=100)
+    logic: Optional[int] = Field(None, ge=0, le=100)
+    resilience: Optional[int] = Field(None, ge=0, le=100)
+    arcane: Optional[int] = Field(None, ge=0, le=100)
+    insight: Optional[int] = Field(None, ge=0, le=100)
+    treat: Optional[int] = Field(None, ge=0)
 
 
 class UserResponse(UserBase):
@@ -28,9 +41,9 @@ class UserResponse(UserBase):
 
 
 class UserPublic(BaseModel):
-    """Public user info (nickname only, no email)"""
+    """Public user info (dog_tag only, no email)"""
     id: int
-    nickname: str
+    dog_tag: str
 
     class Config:
         from_attributes = True
@@ -40,7 +53,3 @@ class TokenResponse(BaseModel):
     access_token: str
     token_type: str = "bearer"
     user: UserResponse
-
-
-class GoogleAuthUrl(BaseModel):
-    auth_url: str

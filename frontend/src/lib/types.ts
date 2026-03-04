@@ -1,7 +1,14 @@
 export interface User {
     id: number;
     email: string;
-    nickname: string;
+    dog_tag: string;
+    decoding: number;
+    perception: number;
+    logic: number;
+    resilience: number;
+    arcane: number;
+    insight: number;
+    treat: number;
     institution: string | null;
     role: 'student' | 'admin';
     is_active: boolean;
@@ -10,7 +17,7 @@ export interface User {
 
 export interface UserPublic {
     id: number;
-    nickname: string;
+    dog_tag: string;
 }
 
 export interface TeamMember {

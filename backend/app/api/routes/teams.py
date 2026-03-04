@@ -59,7 +59,7 @@ async def check_team_in_active_event(db: AsyncSession, team_id: int) -> bool:
 def build_team_member_response(member: TeamMember) -> TeamMemberResponse:
     return TeamMemberResponse(
         id=member.id,
-        user=UserPublic(id=member.user.id, nickname=member.user.nickname),
+        user=UserPublic(id=member.user.id, dog_tag=member.user.dog_tag),
         role=member.role,
         joined_at=member.joined_at,
         lock_expires_at=member.lock_expires_at,
@@ -115,14 +115,14 @@ async def get_my_team_status(
             id=req.id,
             team_id=req.team_id,
             team_name=req.team.name,
-            user=UserPublic(id=req.user.id, nickname=req.user.nickname),
+            user=UserPublic(id=req.user.id, dog_tag=req.user.dog_tag),
             requested_at=req.requested_at,
             expires_at=req.expires_at,
             status=req.status,
             resolved_at=req.resolved_at,
             votes=[JoinRequestVoteResponse(
                 id=v.id,
-                voter=UserPublic(id=v.voter.id, nickname=v.voter.nickname),
+                voter=UserPublic(id=v.voter.id, dog_tag=v.voter.dog_tag),
                 vote=v.vote,
                 voted_at=v.voted_at
             ) for v in req.votes],
@@ -431,7 +431,7 @@ async def request_to_join_team(
         id=join_request.id,
         team_id=team_id,
         team_name=team.name,
-        user=UserPublic(id=current_user.id, nickname=current_user.nickname),
+        user=UserPublic(id=current_user.id, dog_tag=current_user.dog_tag),
         requested_at=join_request.requested_at,
         expires_at=join_request.expires_at,
         status=join_request.status,
@@ -489,14 +489,14 @@ async def get_team_join_requests(
             id=req.id,
             team_id=req.team_id,
             team_name=req.team.name,
-            user=UserPublic(id=req.user.id, nickname=req.user.nickname),
+            user=UserPublic(id=req.user.id, dog_tag=req.user.dog_tag),
             requested_at=req.requested_at,
             expires_at=req.expires_at,
             status=req.status,
             resolved_at=req.resolved_at,
             votes=[JoinRequestVoteResponse(
                 id=v.id,
-                voter=UserPublic(id=v.voter.id, nickname=v.voter.nickname),
+                voter=UserPublic(id=v.voter.id, dog_tag=v.voter.dog_tag),
                 vote=v.vote,
                 voted_at=v.voted_at
             ) for v in req.votes],
@@ -625,14 +625,14 @@ async def vote_on_join_request(
         id=join_request.id,
         team_id=join_request.team_id,
         team_name=join_request.team.name,
-        user=UserPublic(id=join_request.user.id, nickname=join_request.user.nickname),
+        user=UserPublic(id=join_request.user.id, dog_tag=join_request.user.dog_tag),
         requested_at=join_request.requested_at,
         expires_at=join_request.expires_at,
         status=join_request.status,
         resolved_at=join_request.resolved_at,
         votes=[JoinRequestVoteResponse(
             id=v.id,
-            voter=UserPublic(id=v.voter.id, nickname=v.voter.nickname),
+            voter=UserPublic(id=v.voter.id, dog_tag=v.voter.dog_tag),
             vote=v.vote,
             voted_at=v.voted_at
         ) for v in join_request.votes],

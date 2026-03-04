@@ -62,7 +62,7 @@ export function Header() {
                                 <div className="flex items-center gap-3 pl-4 border-l border-phantom-800">
                   <span className="text-mist-300 text-sm">
                     <User className="w-4 h-4 inline mr-1" />
-                      {user?.nickname}
+                      {user?.dog_tag}
                   </span>
                                     <Button variant="ghost" size="sm" onClick={handleLogout}>
                                         <LogOut className="w-4 h-4" />
@@ -94,7 +94,7 @@ export function Header() {
                             <>
                                 <div className="pb-3 mb-3 border-b border-phantom-900/20">
                   <span className="text-mist-300 text-sm">
-                    Signed in as <strong className="text-white">{user?.nickname}</strong>
+                    Signed in as <strong className="text-white">{user?.dog_tag}</strong>
                   </span>
                                 </div>
                                 <Link

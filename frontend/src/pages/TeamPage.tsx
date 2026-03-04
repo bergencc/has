@@ -204,12 +204,12 @@ export function TeamPage() {
                                         <div className="flex items-center gap-3">
                                             <div className="w-10 h-10 rounded-full bg-phantom-900/50 flex items-center justify-center">
                         <span className="text-phantom-400 font-semibold">
-                          {member.user.nickname[0].toUpperCase()}
+                          {member.user.dog_tag[0].toUpperCase()}
                         </span>
                                             </div>
                                             <div>
                                                 <p className="font-medium text-white">
-                                                    {member.user.nickname}
+                                                    {member.user.dog_tag}
                                                     {member.user.id === user?.id && (
                                                         <span className="text-phantom-400 text-sm ml-2">(you)</span>
                                                     )}

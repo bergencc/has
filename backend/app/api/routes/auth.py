@@ -4,7 +4,6 @@ from sqlalchemy.ext.asyncio import AsyncSession
 from sqlalchemy import select
 from authlib.integrations.starlette_client import OAuth
 from datetime import datetime, timezone
-import secrets
 
 from app.core.database import get_db
 from app.core.config import settings
@@ -26,17 +25,31 @@ if settings.google_client_id and settings.google_client_secret:
     )
 
 
-def generate_nickname(email: str) -> str:
-    """Generate a unique nickname from email."""
-    base = email.split('@')[0]
+def get_dog_tag_for_total(total_attributes: int) -> str:
+    if total_attributes >= 550:
+        return "enigma"
+    if total_attributes >= 451:
+        return "oracle"
+    if total_attributes >= 401:
+        return "codebreaker"
+    if total_attributes >= 301:
+        return "scout"
+    return "witness"
 
-    # Clean up the base
-    base = ''.join(c for c in base if c.isalnum())[:15]
 
-    # Add random suffix
-    suffix = secrets.token_hex(3)
+def get_total_attributes(user: User) -> int:
+    return (
+        user.decoding
+        + user.perception
+        + user.logic
+        + user.resilience
+        + user.arcane
+        + user.insight
+    )
 
-    return f"{base}_{suffix}"
+
+def sync_dog_tag(user: User) -> None:
+    user.dog_tag = get_dog_tag_for_total(get_total_attributes(user))
 
 
 def extract_institution(email: str) -> str | None:
@@ -113,22 +126,19 @@ async def google_callback(
 
         if not user.email_verified_at:
             user.email_verified_at = datetime.now(timezone.utc)
+        sync_dog_tag(user)
     else:
-        # Create new user
-        nickname = generate_nickname(email)
-
-        # Ensure nickname is unique
-        while True:
-            existing = await db.execute(select(User).where(User.nickname == nickname))
-
-            if not existing.scalar_one_or_none():
-                break
-
-            nickname = generate_nickname(email)
-
+        # Create new user with baseline stats
         user = User(
             email=email,
-            nickname=nickname,
+            dog_tag="witness",
+            decoding=0,
+            perception=0,
+            logic=0,
+            resilience=0,
+            arcane=0,
+            insight=0,
+            treat=0,
             google_id=google_id,
             institution=extract_institution(email),
             email_verified_at=datetime.now(timezone.utc),
@@ -150,7 +160,6 @@ async def google_callback(
 @router.post("/dev-login", response_model=TokenResponse)
 async def dev_login(
         email: str,
-        nickname: str,
         db: AsyncSession = Depends(get_db)
 ):
     """Development-only login endpoint."""
@@ -165,18 +174,16 @@ async def dev_login(
     user = result.scalar_one_or_none()
 
     if not user:
-        # Check nickname uniqueness
-        nick_check = await db.execute(select(User).where(User.nickname == nickname))
-
-        if nick_check.scalar_one_or_none():
-            raise HTTPException(
-                status_code=status.HTTP_400_BAD_REQUEST,
-                detail="Nickname already taken"
-            )
-
         user = User(
             email=email,
-            nickname=nickname,
+            dog_tag="witness",
+            decoding=0,
+            perception=0,
+            logic=0,
+            resilience=0,
+            arcane=0,
+            insight=0,
+            treat=0,
             institution=extract_institution(email),
             email_verified_at=datetime.now(timezone.utc),
         )
@@ -206,22 +213,12 @@ async def update_me(
         db: AsyncSession = Depends(get_db)
 ):
     """Update current user profile."""
-    if update.nickname:
-        # Check nickname uniqueness
-        result = await db.execute(
-            select(User).where(
-                User.nickname == update.nickname,
-                User.id != current_user.id
-            )
-        )
+    update_data = update.model_dump(exclude_unset=True)
 
-        if result.scalar_one_or_none():
-            raise HTTPException(
-                status_code=status.HTTP_400_BAD_REQUEST,
-                detail="Nickname already taken"
-            )
+    for key, value in update_data.items():
+        setattr(current_user, key, value)
 
-        current_user.nickname = update.nickname
+    sync_dog_tag(current_user)
 
     await db.commit()
     await db.refresh(current_user)

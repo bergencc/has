@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import { useState } from 'react';
 import { Ghost } from 'lucide-react';
 import { Button, Card } from '@/components/ui';
 
