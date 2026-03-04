@@ -62,7 +62,7 @@ export function LoginPage() {
             </div>
 
             <footer className="text-center text-xs text-mist-600 pb-2">
-                A Product of Bergen Open Source Foundation | Bergen Community College
+                Bergen Open Source Foundation | Bergen Community College
             </footer>
         </div>
     );
