@@ -14,6 +14,7 @@ import type {
     HintResponse,
     TokenResponse,
     TeamRankingEntry,
+    UserTreatRankingEntry,
 } from './types';
 
 const API_BASE = '/api';
@@ -134,6 +135,12 @@ class ApiClient {
 
     async getTeamRankings(): Promise<TeamRankingEntry[]> {
         const { data } = await this.client.get('/teams/rankings');
+
+        return data;
+    }
+
+    async getUserTreatRankings(): Promise<UserTreatRankingEntry[]> {
+        const { data } = await this.client.get('/teams/rankings/users');
 
         return data;
     }

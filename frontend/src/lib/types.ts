@@ -60,6 +60,14 @@ export interface TeamRankingEntry {
     hint_usage_score: number | null;
 }
 
+export interface UserTreatRankingEntry {
+    rank: number;
+    user_id: number;
+    dog_tag: string;
+    treat: number;
+    total_attributes: number;
+}
+
 export interface JoinRequestVote {
     id: number;
     voter: UserPublic;

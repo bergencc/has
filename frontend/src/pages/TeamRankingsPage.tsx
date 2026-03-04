@@ -1,19 +1,24 @@
 import { useEffect, useState } from 'react';
-import { Trophy, Users, BarChart3, HelpCircle } from 'lucide-react';
+import { Trophy, Users, BarChart3, HelpCircle, Coins, User } from 'lucide-react';
 import { Card, Loading, EmptyState, Alert } from '@/components/ui';
 import { api } from '@/lib/api';
-import type { TeamRankingEntry } from '@/lib/types';
+import type { TeamRankingEntry, UserTreatRankingEntry } from '@/lib/types';
 
 export function TeamRankingsPage() {
     const [rankings, setRankings] = useState<TeamRankingEntry[]>([]);
+    const [userRankings, setUserRankings] = useState<UserTreatRankingEntry[]>([]);
     const [loading, setLoading] = useState(true);
 
     useEffect(() => {
         const loadRankings = async () => {
             try {
-                const data = await api.getTeamRankings();
+                const [teamData, userData] = await Promise.all([
+                    api.getTeamRankings(),
+                    api.getUserTreatRankings(),
+                ]);
 
-                setRankings(data);
+                setRankings(teamData);
+                setUserRankings(userData);
             } catch (error) {
                 console.error('Failed to load team rankings:', error);
             } finally {
@@ -28,11 +33,11 @@ export function TeamRankingsPage() {
         return <Loading message="Loading rankings..." />;
     }
 
-    if (rankings.length === 0) {
+    if (rankings.length === 0 && userRankings.length === 0) {
         return (
             <EmptyState
-                title="No teams yet"
-                description="Team rankings will appear once teams register and start scoring points."
+                title="No rankings yet"
+                description="Team and treat rankings will appear once users and teams start scoring."
             />
         );
     }
@@ -171,6 +176,38 @@ export function TeamRankingsPage() {
                             </div>
                         );
                     })}
+                </div>
+            </Card>
+
+            <Card className="p-0 overflow-hidden">
+                <div className="px-6 py-3 text-xs uppercase tracking-wider text-mist-500 border-b border-phantom-900/20">
+                    Top Users by Treat
+                </div>
+                <div className="divide-y divide-phantom-900/20">
+                    {userRankings.map((entry) => (
+                        <div key={entry.user_id} className="px-4 py-4 md:px-6">
+                            <div className="flex items-center justify-between">
+                                <div className="flex items-center gap-3">
+                                    <div className="w-9 h-9 rounded-full bg-specter-900/40 flex items-center justify-center text-specter-300 font-semibold">
+                                        {entry.rank}
+                                    </div>
+                                    <div>
+                                        <p className="font-semibold text-white flex items-center gap-2">
+                                            <User className="w-4 h-4 text-mist-400" />
+                                            {entry.dog_tag}
+                                        </p>
+                                        <p className="text-xs text-mist-500">
+                                            Total Attributes: {entry.total_attributes}
+                                        </p>
+                                    </div>
+                                </div>
+                                <div className="flex items-center gap-2 text-mist-200">
+                                    <Coins className="w-4 h-4 text-specter-400" />
+                                    <span className="font-semibold text-white">{entry.treat}</span>
+                                </div>
+                            </div>
+                        </div>
+                    ))}
                 </div>
             </Card>
         </div>

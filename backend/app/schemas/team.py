@@ -66,6 +66,14 @@ class TeamRankingResponse(BaseModel):
     hint_usage_score: Optional[float] = None
 
 
+class UserTreatRankingResponse(BaseModel):
+    rank: int
+    user_id: int
+    dog_tag: str
+    treat: int
+    total_attributes: int
+
+
 # Join Request schemas
 class JoinRequestCreate(BaseModel):
     team_id: int

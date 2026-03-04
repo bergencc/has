@@ -1,6 +1,6 @@
 import React from 'react';
 import { Link, useNavigate } from 'react-router-dom';
-import { Ghost, Menu, X, LogOut, User, Users, Calendar, Trophy } from 'lucide-react';
+import { Ghost, Menu, X, LogOut, User } from 'lucide-react';
 import { useAuthStore } from '@/lib/store';
 import { Button } from '../ui/Button';
 
@@ -34,21 +34,18 @@ export function Header() {
                                     to="/events"
                                     className="flex items-center gap-2 text-mist-300 hover:text-white transition-colors"
                                 >
-                                    <Calendar className="w-4 h-4" />
                                     Events
                                 </Link>
                                 <Link
                                     to="/team"
                                     className="flex items-center gap-2 text-mist-300 hover:text-white transition-colors"
                                 >
-                                    <Users className="w-4 h-4" />
                                     Team
                                 </Link>
                                 <Link
                                     to="/rankings"
                                     className="flex items-center gap-2 text-mist-300 hover:text-white transition-colors"
                                 >
-                                    <Trophy className="w-4 h-4" />
                                     Rankings
                                 </Link>
                                 {user?.role === 'admin' && (
@@ -97,7 +94,7 @@ export function Header() {
                             <>
                                 <div className="pb-3 mb-3 border-b border-phantom-900/20">
                   <span className="text-mist-300 text-sm">
-                    Signed in as <strong className="text-white">{user?.dog_tag}</strong>
+                    You rank as <strong className="text-white">{user?.dog_tag}</strong>
                   </span>
                                 </div>
                                 <Link
@@ -105,7 +102,6 @@ export function Header() {
                                     className="block px-3 py-2 rounded-lg text-mist-200 hover:bg-void-50"
                                     onClick={() => setMobileMenuOpen(false)}
                                 >
-                                    <User className="w-4 h-4 inline mr-2" />
                                     Profile
                                 </Link>
                                 <Link
@@ -113,7 +109,6 @@ export function Header() {
                                     className="block px-3 py-2 rounded-lg text-mist-200 hover:bg-void-50"
                                     onClick={() => setMobileMenuOpen(false)}
                                 >
-                                    <Calendar className="w-4 h-4 inline mr-2" />
                                     Events
                                 </Link>
                                 <Link
@@ -121,7 +116,6 @@ export function Header() {
                                     className="block px-3 py-2 rounded-lg text-mist-200 hover:bg-void-50"
                                     onClick={() => setMobileMenuOpen(false)}
                                 >
-                                    <Users className="w-4 h-4 inline mr-2" />
                                     Team
                                 </Link>
                                 <Link
@@ -129,7 +123,6 @@ export function Header() {
                                     className="block px-3 py-2 rounded-lg text-mist-200 hover:bg-void-50"
                                     onClick={() => setMobileMenuOpen(false)}
                                 >
-                                    <Trophy className="w-4 h-4 inline mr-2" />
                                     Rankings
                                 </Link>
                                 {user?.role === 'admin' && (

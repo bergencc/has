@@ -17,7 +17,7 @@ from app.schemas.team import (
     TeamCreate, TeamUpdate, TeamResponse, TeamListResponse,
     TeamMemberResponse, JoinRequestCreate, JoinRequestVoteCreate,
     JoinRequestResponse, JoinRequestVoteResponse, TeamMembershipStatus,
-    TeamRankingResponse
+    TeamRankingResponse, UserTreatRankingResponse
 )
 from app.schemas.user import UserPublic
 
@@ -341,6 +341,42 @@ async def get_team_rankings(
             completed_challenges=completed,
             hints_used=hints_used,
             hint_usage_score=hint_usage_score
+        ))
+
+    return rankings
+
+
+@router.get("/rankings/users", response_model=List[UserTreatRankingResponse])
+async def get_user_treat_rankings(
+        current_user: User = Depends(get_current_user),
+        db: AsyncSession = Depends(get_db)
+):
+    """Global user rankings by treat."""
+    query = (
+        select(User)
+        .where(User.is_active == True)
+        .order_by(User.treat.desc(), User.created_at.asc())
+    )
+
+    result = await db.execute(query)
+    users = result.scalars().all()
+
+    rankings: List[UserTreatRankingResponse] = []
+    for index, user in enumerate(users, start=1):
+        total_attributes = (
+            user.decoding
+            + user.perception
+            + user.logic
+            + user.resilience
+            + user.arcane
+            + user.insight
+        )
+        rankings.append(UserTreatRankingResponse(
+            rank=index,
+            user_id=user.id,
+            dog_tag=user.dog_tag,
+            treat=user.treat,
+            total_attributes=total_attributes
         ))
 
     return rankings
