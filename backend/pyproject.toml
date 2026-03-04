@@ -17,7 +17,6 @@ dependencies = [
     "python-dotenv>=1.2.1",
     "python-jose[cryptography]>=3.5.0",
     "python-multipart>=0.0.20",
-    "redis>=7.0.1",
     "sqlalchemy>=2.0.46",
     "uvicorn[standard]>=0.39.0",
 ]
