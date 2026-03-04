@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from 'react';
+import React, { useCallback, useEffect, useState } from 'react';
 import { useParams, Link } from 'react-router-dom';
 import {
     ArrowLeft,
@@ -71,17 +71,13 @@ export function AdminEventPage() {
         )}:${pad(date.getMinutes())}`;
     };
 
-    useEffect(() => {
-        if (eventId) {
-            loadData();
-        }
-    }, [eventId]);
+    const loadData = useCallback(async () => {
+        if (!eventId) return;
 
-    const loadData = async () => {
         try {
             const [eventData, challengesData] = await Promise.all([
-                api.getEvent(parseInt(eventId!)),
-                api.getAdminChallenges(parseInt(eventId!)),
+                api.getEvent(parseInt(eventId)),
+                api.getAdminChallenges(parseInt(eventId)),
             ]);
 
             setEvent(eventData);
@@ -94,7 +90,11 @@ export function AdminEventPage() {
         } finally {
             setLoading(false);
         }
-    };
+    }, [eventId]);
+
+    useEffect(() => {
+        loadData();
+    }, [loadData]);
 
     const handleDeleteChallenge = async (challengeId: number) => {
         if (!confirm('Are you sure you want to delete this challenge?')) return;

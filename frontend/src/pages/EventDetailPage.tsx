@@ -18,14 +18,12 @@ import {
     EmptyState,
 } from '@/components/ui';
 import { ChallengeCard, Leaderboard } from '@/components/event';
-import { useAuthStore } from '@/lib/store';
 import { api } from '@/lib/api';
 import { formatDate, formatDateTime, formatTimeRemaining } from '@/lib/utils';
 import type { Event, ChallengeStatus, EventLeaderboard, TeamMembershipStatus } from '@/lib/types';
 
 export function EventDetailPage() {
     const { eventId } = useParams<{ eventId: string }>();
-    const { user } = useAuthStore();
     const [event, setEvent] = useState<Event | null>(null);
     const [challenges, setChallenges] = useState<ChallengeStatus[]>([]);
     const [leaderboard, setLeaderboard] = useState<EventLeaderboard | null>(null);

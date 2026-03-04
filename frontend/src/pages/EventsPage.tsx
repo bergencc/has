@@ -1,4 +1,4 @@
-import { useEffect, useState } from 'react';
+import { useCallback, useEffect, useState } from 'react';
 import { Link } from 'react-router-dom';
 import { Calendar } from 'lucide-react';
 import { Loading, EmptyState } from '@/components/ui';
@@ -12,11 +12,7 @@ export function EventsPage() {
     const [filter, setFilter] = useState<'all' | 'active' | 'upcoming' | 'past'>('all');
     const [includePast, setIncludePast] = useState(false);
 
-    useEffect(() => {
-        loadEvents();
-    }, [includePast]);
-
-    const loadEvents = async () => {
+    const loadEvents = useCallback(async () => {
         try {
             const data = await api.listEvents(undefined, includePast);
 
@@ -26,7 +22,11 @@ export function EventsPage() {
         } finally {
             setLoading(false);
         }
-    };
+    }, [includePast]);
+
+    useEffect(() => {
+        loadEvents();
+    }, [loadEvents]);
 
     const filteredEvents = events.filter((event) => {
         switch (filter) {
