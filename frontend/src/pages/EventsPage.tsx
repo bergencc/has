@@ -47,12 +47,6 @@ export function EventsPage() {
 
     return (
         <div className="space-y-6 animate-fade-in">
-            <div className="flex items-center justify-between">
-                <h1 className="page-title">
-                    <Calendar className="w-8 h-8 inline mr-3 text-phantom-500" />
-                    Events
-                </h1>
-            </div>
 
             {/* Filters */}
             <div className="flex flex-wrap items-center gap-3">

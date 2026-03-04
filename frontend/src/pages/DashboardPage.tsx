@@ -101,7 +101,7 @@ export function DashboardPage() {
                         <div>
                             <h2 className="text-lg font-semibold text-white">Join or Create a Team</h2>
                             <p className="mt-1 text-mist-400">
-                                You need a team to participate in scavenger hunts.
+                                You need a team to participate.
                             </p>
                         </div>
                         <Link to="/team">

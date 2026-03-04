@@ -125,12 +125,6 @@ export function TeamPage() {
 
     return (
         <div className="space-y-8 animate-fade-in">
-            <div className="flex items-center justify-between">
-                <h1 className="page-title">
-                    <Users className="w-8 h-8 inline mr-3 text-phantom-500" />
-                    Team
-                </h1>
-            </div>
 
             {error && (
                 <Alert type="error" className="animate-slide-up">

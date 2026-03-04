@@ -1,5 +1,5 @@
 import { useEffect, useState } from 'react';
-import { Trophy, Users, BarChart3, HelpCircle, Coins, User } from 'lucide-react';
+import { Users, BarChart3, HelpCircle, Coins, User } from 'lucide-react';
 import { Card, Loading, EmptyState, Alert } from '@/components/ui';
 import { api } from '@/lib/api';
 import type { TeamRankingEntry, UserTreatRankingEntry } from '@/lib/types';
@@ -44,18 +44,6 @@ export function TeamRankingsPage() {
 
     return (
         <div className="space-y-6 animate-fade-in">
-            <div className="flex flex-col gap-3 sm:flex-row sm:items-start sm:justify-between">
-                <div>
-                    <h1 className="page-title">
-                        <Trophy className="w-8 h-8 inline mr-3 text-phantom-500" />
-                        Global Team Rankings
-                    </h1>
-                    <p className="text-mist-400">
-                        Total points and participation across all events.
-                    </p>
-                </div>
-            </div>
-
             <Alert type="info">
                 Hint usage score is calculated as <strong className="text-white">hints used per solved challenge</strong>.
                 Lower scores indicate fewer hints used.

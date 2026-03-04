@@ -1,4 +1,4 @@
-import { User, Shield, Sparkles } from 'lucide-react';
+import { Shield, Sparkles } from 'lucide-react';
 import { Card, Badge } from '@/components/ui';
 import { useAuthStore } from '@/lib/store';
 
@@ -24,15 +24,8 @@ export function ProfilePage() {
         { key: 'insight', label: 'Insight', value: user.insight },
     ];
 
-    const totalAttributes = stats.reduce((sum, stat) => sum + stat.value, 0);
-
     return (
         <div className="space-y-6 animate-fade-in">
-            <div className="flex items-center gap-3">
-                <User className="w-8 h-8 text-phantom-500" />
-                <h1 className="page-title">Profile</h1>
-            </div>
-
             <Card className="p-6">
                 <div className="flex flex-wrap items-center gap-3">
                     <Badge variant="phantom" className="text-sm">
@@ -40,9 +33,6 @@ export function ProfilePage() {
                     </Badge>
                     <Badge variant="specter" className="text-sm">
                         Treat: {user.treat}
-                    </Badge>
-                    <Badge variant="mist" className="text-sm">
-                        Total Attributes: {totalAttributes}
                     </Badge>
                 </div>
                 <p className="text-mist-400 mt-4">{user.email}</p>

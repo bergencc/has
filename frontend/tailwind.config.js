@@ -70,9 +70,9 @@ export default {
                 },
             },
             fontFamily: {
-                display: ['Roboto', 'system-ui', 'sans-serif'],
-                body: ['Roboto', 'system-ui', 'sans-serif'],
-                mono: ['Roboto', 'system-ui', 'sans-serif'],
+                display: ['Macondo', 'system-ui', 'sans-serif'],
+                body: ['Macondo', 'system-ui', 'sans-serif'],
+                mono: ['Macondo', 'system-ui', 'sans-serif'],
             },
             boxShadow: {
                 'glow-purple': '0 0 20px rgba(139, 63, 207, 0.3)',
