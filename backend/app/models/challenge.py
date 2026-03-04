@@ -25,7 +25,14 @@ class Challenge(Base):
     prompt: Mapped[str] = mapped_column(Text, nullable=False)
 
     # Scoring
-    points: Mapped[int] = mapped_column(Integer, default=100, nullable=False)
+    ranking_point: Mapped[int] = mapped_column(Integer, default=100, nullable=False)
+    treat_point: Mapped[int] = mapped_column(Integer, default=0, nullable=False)
+    decoding_point: Mapped[int] = mapped_column(Integer, default=0, nullable=False)
+    perception_point: Mapped[int] = mapped_column(Integer, default=0, nullable=False)
+    logic_point: Mapped[int] = mapped_column(Integer, default=0, nullable=False)
+    resilience_point: Mapped[int] = mapped_column(Integer, default=0, nullable=False)
+    arcane_point: Mapped[int] = mapped_column(Integer, default=0, nullable=False)
+    insight_point: Mapped[int] = mapped_column(Integer, default=0, nullable=False)
     hint_cost: Mapped[int] = mapped_column(Integer, default=10, nullable=False)  # Points deducted per hint
     max_attempts: Mapped[Optional[int]] = mapped_column(Integer, nullable=True)  # None = unlimited
     point_decay_per_attempt: Mapped[int] = mapped_column(Integer, default=0, nullable=False)  # Points lost per wrong attempt

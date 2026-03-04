@@ -28,6 +28,16 @@ class Event(Base):
     min_team_size: Mapped[int] = mapped_column(Integer, default=1, nullable=False)
     max_team_size: Mapped[int] = mapped_column(Integer, default=4, nullable=False)
 
+    # Reward/Penalty profile
+    ranking_point: Mapped[int] = mapped_column(Integer, default=0, nullable=False)
+    treat_point: Mapped[int] = mapped_column(Integer, default=0, nullable=False)
+    decoding_point: Mapped[int] = mapped_column(Integer, default=0, nullable=False)
+    perception_point: Mapped[int] = mapped_column(Integer, default=0, nullable=False)
+    logic_point: Mapped[int] = mapped_column(Integer, default=0, nullable=False)
+    resilience_point: Mapped[int] = mapped_column(Integer, default=0, nullable=False)
+    arcane_point: Mapped[int] = mapped_column(Integer, default=0, nullable=False)
+    insight_point: Mapped[int] = mapped_column(Integer, default=0, nullable=False)
+
     # Rules
     rules: Mapped[Optional[dict]] = mapped_column(JSON, nullable=True)  # Custom rules JSON
     team_lock_mode: Mapped[str] = mapped_column(String(20), default="open", nullable=False)  # open, locked
@@ -89,6 +99,7 @@ class EventRegistration(Base):
         nullable=False
     )
     status: Mapped[str] = mapped_column(String(20), default="registered", nullable=False)  # registered, withdrawn, disqualified
+    outcome_applied: Mapped[bool] = mapped_column(default=False, nullable=False)
 
     # Relationships
     event: Mapped["Event"] = relationship(back_populates="registrations")

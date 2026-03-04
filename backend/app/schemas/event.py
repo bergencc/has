@@ -15,6 +15,14 @@ class EventBase(BaseModel):
     registration_closes_at: Optional[datetime] = None
     min_team_size: int = Field(1, ge=1, le=10)
     max_team_size: int = Field(4, ge=1, le=10)
+    ranking_point: int = Field(0, ge=0, le=10000)
+    treat_point: int = Field(0, ge=0, le=10000)
+    decoding_point: int = Field(0, ge=0, le=100)
+    perception_point: int = Field(0, ge=0, le=100)
+    logic_point: int = Field(0, ge=0, le=100)
+    resilience_point: int = Field(0, ge=0, le=100)
+    arcane_point: int = Field(0, ge=0, le=100)
+    insight_point: int = Field(0, ge=0, le=100)
     team_lock_mode: str = Field("open", pattern="^(open|locked)$")
     rules: Optional[dict] = None
 
@@ -32,6 +40,14 @@ class EventUpdate(BaseModel):
     registration_closes_at: Optional[datetime] = None
     min_team_size: Optional[int] = Field(None, ge=1, le=10)
     max_team_size: Optional[int] = Field(None, ge=1, le=10)
+    ranking_point: Optional[int] = Field(None, ge=0, le=10000)
+    treat_point: Optional[int] = Field(None, ge=0, le=10000)
+    decoding_point: Optional[int] = Field(None, ge=0, le=100)
+    perception_point: Optional[int] = Field(None, ge=0, le=100)
+    logic_point: Optional[int] = Field(None, ge=0, le=100)
+    resilience_point: Optional[int] = Field(None, ge=0, le=100)
+    arcane_point: Optional[int] = Field(None, ge=0, le=100)
+    insight_point: Optional[int] = Field(None, ge=0, le=100)
     status: Optional[str] = Field(None, pattern="^(draft|registration|active|completed|cancelled)$")
     team_lock_mode: Optional[str] = Field(None, pattern="^(open|locked)$")
     rules: Optional[dict] = None

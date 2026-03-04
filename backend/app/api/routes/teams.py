@@ -8,10 +8,11 @@ from typing import List
 from app.core.database import get_db
 from app.core.config import settings
 from app.core.security import get_current_user
+from app.api.routes.challenges import settle_event_outcomes
 from app.models.user import User
 from app.models.team import Team, TeamMember, JoinRequest, JoinRequestVote
-from app.models.event import EventRegistration, Event
-from app.models.challenge import Attempt, HintUse
+from app.models.event import EventRegistration, Event, EventLeaderboard
+from app.models.challenge import HintUse
 from app.schemas.team import (
     TeamCreate, TeamUpdate, TeamResponse, TeamListResponse,
     TeamMemberResponse, JoinRequestCreate, JoinRequestVoteCreate,
@@ -247,6 +248,14 @@ async def get_team_rankings(
         db: AsyncSession = Depends(get_db)
 ):
     """Global team rankings across all events."""
+    now = datetime.now(timezone.utc)
+    result = await db.execute(
+        select(Event).where(Event.ends_at < now)
+    )
+    ended_events = result.scalars().all()
+    for event in ended_events:
+        await settle_event_outcomes(db, event)
+
     member_subquery = (
         select(
             TeamMember.team_id.label("team_id"),
@@ -267,14 +276,13 @@ async def get_team_rankings(
         .subquery()
     )
 
-    attempts_subquery = (
+    scores_subquery = (
         select(
-            Attempt.team_id.label("team_id"),
-            func.coalesce(func.sum(Attempt.points_awarded), 0).label("total_points"),
-            func.count(func.distinct(Attempt.challenge_id)).label("completed_challenges")
+            EventLeaderboard.team_id.label("team_id"),
+            func.coalesce(func.sum(EventLeaderboard.total_points), 0).label("total_points"),
+            func.coalesce(func.sum(EventLeaderboard.completed_challenges), 0).label("completed_challenges")
         )
-        .where(Attempt.is_correct == True)
-        .group_by(Attempt.team_id)
+        .group_by(EventLeaderboard.team_id)
         .subquery()
     )
 
@@ -293,18 +301,18 @@ async def get_team_rankings(
             Team.name.label("team_name"),
             func.coalesce(member_subquery.c.member_count, 0).label("member_count"),
             func.coalesce(registration_subquery.c.events_registered, 0).label("events_registered"),
-            func.coalesce(attempts_subquery.c.total_points, 0).label("total_points"),
-            func.coalesce(attempts_subquery.c.completed_challenges, 0).label("completed_challenges"),
+            func.coalesce(scores_subquery.c.total_points, 0).label("total_points"),
+            func.coalesce(scores_subquery.c.completed_challenges, 0).label("completed_challenges"),
             func.coalesce(hints_subquery.c.hints_used, 0).label("hints_used")
         )
         .where(Team.disbanded_at.is_(None))
         .outerjoin(member_subquery, member_subquery.c.team_id == Team.id)
         .outerjoin(registration_subquery, registration_subquery.c.team_id == Team.id)
-        .outerjoin(attempts_subquery, attempts_subquery.c.team_id == Team.id)
+        .outerjoin(scores_subquery, scores_subquery.c.team_id == Team.id)
         .outerjoin(hints_subquery, hints_subquery.c.team_id == Team.id)
         .order_by(
-            func.coalesce(attempts_subquery.c.total_points, 0).desc(),
-            func.coalesce(attempts_subquery.c.completed_challenges, 0).desc(),
+            func.coalesce(scores_subquery.c.total_points, 0).desc(),
+            func.coalesce(scores_subquery.c.completed_challenges, 0).desc(),
             func.coalesce(hints_subquery.c.hints_used, 0).asc(),
             Team.name.asc()
         )

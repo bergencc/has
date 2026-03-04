@@ -31,7 +31,14 @@ interface ChallengeAdmin {
     type: 'riddle' | 'scavenger_code';
     title: string;
     prompt: string;
-    points: number;
+    ranking_point: number;
+    treat_point: number;
+    decoding_point: number;
+    perception_point: number;
+    logic_point: number;
+    resilience_point: number;
+    arcane_point: number;
+    insight_point: number;
     hint_cost: number;
     max_attempts: number | null;
     point_decay_per_attempt: number;
@@ -51,6 +58,14 @@ export function AdminEventPage() {
     const [status, setStatus] = useState<Event['status']>('draft');
     const [startsAt, setStartsAt] = useState('');
     const [endsAt, setEndsAt] = useState('');
+    const [eventRankingPoint, setEventRankingPoint] = useState(0);
+    const [eventTreatPoint, setEventTreatPoint] = useState(0);
+    const [eventDecodingPoint, setEventDecodingPoint] = useState(0);
+    const [eventPerceptionPoint, setEventPerceptionPoint] = useState(0);
+    const [eventLogicPoint, setEventLogicPoint] = useState(0);
+    const [eventResiliencePoint, setEventResiliencePoint] = useState(0);
+    const [eventArcanePoint, setEventArcanePoint] = useState(0);
+    const [eventInsightPoint, setEventInsightPoint] = useState(0);
     const [saving, setSaving] = useState(false);
     const [saveError, setSaveError] = useState('');
     const [showChallengeModal, setShowChallengeModal] = useState(false);
@@ -85,6 +100,14 @@ export function AdminEventPage() {
             setStatus(eventData.status);
             setStartsAt(toLocalInputValue(eventData.starts_at));
             setEndsAt(toLocalInputValue(eventData.ends_at));
+            setEventRankingPoint(eventData.ranking_point);
+            setEventTreatPoint(eventData.treat_point);
+            setEventDecodingPoint(eventData.decoding_point);
+            setEventPerceptionPoint(eventData.perception_point);
+            setEventLogicPoint(eventData.logic_point);
+            setEventResiliencePoint(eventData.resilience_point);
+            setEventArcanePoint(eventData.arcane_point);
+            setEventInsightPoint(eventData.insight_point);
         } catch (error) {
             console.error('Failed to load data:', error);
         } finally {
@@ -157,6 +180,14 @@ export function AdminEventPage() {
                 status,
                 starts_at: startsIso,
                 ends_at: endsIso,
+                ranking_point: eventRankingPoint,
+                treat_point: eventTreatPoint,
+                decoding_point: eventDecodingPoint,
+                perception_point: eventPerceptionPoint,
+                logic_point: eventLogicPoint,
+                resilience_point: eventResiliencePoint,
+                arcane_point: eventArcanePoint,
+                insight_point: eventInsightPoint,
             });
 
             setEvent(updated);
@@ -300,6 +331,25 @@ export function AdminEventPage() {
                         onChange={(e) => setEndsAt(e.target.value)}
                     />
                 </div>
+
+                <div className="grid grid-cols-2 md:grid-cols-4 gap-4 mt-4">
+                    <Input label="Event Ranking" type="number" min={0} value={eventRankingPoint}
+                           onChange={(e) => setEventRankingPoint(parseInt(e.target.value) || 0)} />
+                    <Input label="Event Treat" type="number" min={0} value={eventTreatPoint}
+                           onChange={(e) => setEventTreatPoint(parseInt(e.target.value) || 0)} />
+                    <Input label="Event Decoding" type="number" min={0} max={100} value={eventDecodingPoint}
+                           onChange={(e) => setEventDecodingPoint(parseInt(e.target.value) || 0)} />
+                    <Input label="Event Perception" type="number" min={0} max={100} value={eventPerceptionPoint}
+                           onChange={(e) => setEventPerceptionPoint(parseInt(e.target.value) || 0)} />
+                    <Input label="Event Logic" type="number" min={0} max={100} value={eventLogicPoint}
+                           onChange={(e) => setEventLogicPoint(parseInt(e.target.value) || 0)} />
+                    <Input label="Event Resilience" type="number" min={0} max={100} value={eventResiliencePoint}
+                           onChange={(e) => setEventResiliencePoint(parseInt(e.target.value) || 0)} />
+                    <Input label="Event Arcane" type="number" min={0} max={100} value={eventArcanePoint}
+                           onChange={(e) => setEventArcanePoint(parseInt(e.target.value) || 0)} />
+                    <Input label="Event Insight" type="number" min={0} max={100} value={eventInsightPoint}
+                           onChange={(e) => setEventInsightPoint(parseInt(e.target.value) || 0)} />
+                </div>
             </Card>
 
             {/* Challenges */}
@@ -360,7 +410,8 @@ export function AdminEventPage() {
                                                 {challenge.prompt}
                                             </p>
                                             <div className="flex items-center gap-4 mt-2 text-xs text-mist-500">
-                                                <span>{challenge.points} points</span>
+                                                <span>{challenge.ranking_point} ranking</span>
+                                                <span>{challenge.treat_point} treat</span>
                                                 <span>{challenge.accepted_answers.length} accepted answers</span>
                                                 {challenge.hints && (
                                                     <span>{challenge.hints.length} hints</span>
@@ -432,7 +483,14 @@ function ChallengeModal(
         type: 'riddle' as 'riddle' | 'scavenger_code',
         title: '',
         prompt: '',
-        points: 100,
+        ranking_point: 100,
+        treat_point: 0,
+        decoding_point: 0,
+        perception_point: 0,
+        logic_point: 0,
+        resilience_point: 0,
+        arcane_point: 0,
+        insight_point: 0,
         hint_cost: 10,
         max_attempts: '' as string | number,
         point_decay_per_attempt: 0,
@@ -448,7 +506,14 @@ function ChallengeModal(
                 type: challenge.type,
                 title: challenge.title,
                 prompt: challenge.prompt,
-                points: challenge.points,
+                ranking_point: challenge.ranking_point,
+                treat_point: challenge.treat_point,
+                decoding_point: challenge.decoding_point,
+                perception_point: challenge.perception_point,
+                logic_point: challenge.logic_point,
+                resilience_point: challenge.resilience_point,
+                arcane_point: challenge.arcane_point,
+                insight_point: challenge.insight_point,
                 hint_cost: challenge.hint_cost,
                 max_attempts: challenge.max_attempts || '',
                 point_decay_per_attempt: challenge.point_decay_per_attempt,
@@ -462,7 +527,14 @@ function ChallengeModal(
                 type: 'riddle',
                 title: '',
                 prompt: '',
-                points: 100,
+                ranking_point: 100,
+                treat_point: 0,
+                decoding_point: 0,
+                perception_point: 0,
+                logic_point: 0,
+                resilience_point: 0,
+                arcane_point: 0,
+                insight_point: 0,
                 hint_cost: 10,
                 max_attempts: '',
                 point_decay_per_attempt: 0,
@@ -586,18 +658,90 @@ function ChallengeModal(
                     />
                 </div>
 
-                {/* Points */}
-                <div className="grid grid-cols-3 gap-4">
+                {/* Reward Points */}
+                <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
                     <Input
-                        label="Points"
+                        label="Ranking Point"
                         type="number"
                         min={1}
-                        value={formData.points}
+                        value={formData.ranking_point}
                         onChange={(e) =>
-                            setFormData({ ...formData, points: parseInt(e.target.value) || 0 })
+                            setFormData({ ...formData, ranking_point: parseInt(e.target.value) || 0 })
                         }
                         required
                     />
+                    <Input
+                        label="Treat Point"
+                        type="number"
+                        min={0}
+                        value={formData.treat_point}
+                        onChange={(e) =>
+                            setFormData({ ...formData, treat_point: parseInt(e.target.value) || 0 })
+                        }
+                    />
+                    <Input
+                        label="Decoding"
+                        type="number"
+                        min={0}
+                        max={100}
+                        value={formData.decoding_point}
+                        onChange={(e) =>
+                            setFormData({ ...formData, decoding_point: parseInt(e.target.value) || 0 })
+                        }
+                    />
+                    <Input
+                        label="Perception"
+                        type="number"
+                        min={0}
+                        max={100}
+                        value={formData.perception_point}
+                        onChange={(e) =>
+                            setFormData({ ...formData, perception_point: parseInt(e.target.value) || 0 })
+                        }
+                    />
+                    <Input
+                        label="Logic"
+                        type="number"
+                        min={0}
+                        max={100}
+                        value={formData.logic_point}
+                        onChange={(e) =>
+                            setFormData({ ...formData, logic_point: parseInt(e.target.value) || 0 })
+                        }
+                    />
+                    <Input
+                        label="Resilience"
+                        type="number"
+                        min={0}
+                        max={100}
+                        value={formData.resilience_point}
+                        onChange={(e) =>
+                            setFormData({ ...formData, resilience_point: parseInt(e.target.value) || 0 })
+                        }
+                    />
+                    <Input
+                        label="Arcane"
+                        type="number"
+                        min={0}
+                        max={100}
+                        value={formData.arcane_point}
+                        onChange={(e) =>
+                            setFormData({ ...formData, arcane_point: parseInt(e.target.value) || 0 })
+                        }
+                    />
+                    <Input
+                        label="Insight"
+                        type="number"
+                        min={0}
+                        max={100}
+                        value={formData.insight_point}
+                        onChange={(e) =>
+                            setFormData({ ...formData, insight_point: parseInt(e.target.value) || 0 })
+                        }
+                    />
+                </div>
+
+                <div className="grid grid-cols-3 gap-4">
                     <Input
                         label="Hint Cost"
                         type="number"

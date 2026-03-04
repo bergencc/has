@@ -7,7 +7,14 @@ class ChallengeBase(BaseModel):
     type: str = Field(..., pattern="^(riddle|scavenger_code)$")
     title: str = Field(..., min_length=3, max_length=200)
     prompt: str = Field(..., min_length=10)
-    points: int = Field(100, ge=1, le=10000)
+    ranking_point: int = Field(100, ge=1, le=10000)
+    treat_point: int = Field(0, ge=0, le=10000)
+    decoding_point: int = Field(0, ge=0, le=100)
+    perception_point: int = Field(0, ge=0, le=100)
+    logic_point: int = Field(0, ge=0, le=100)
+    resilience_point: int = Field(0, ge=0, le=100)
+    arcane_point: int = Field(0, ge=0, le=100)
+    insight_point: int = Field(0, ge=0, le=100)
     hint_cost: int = Field(10, ge=0, le=1000)
     max_attempts: Optional[int] = Field(None, ge=1, le=100)
     point_decay_per_attempt: int = Field(0, ge=0, le=100)
@@ -24,7 +31,14 @@ class ChallengeCreate(ChallengeBase):
 class ChallengeUpdate(BaseModel):
     title: Optional[str] = Field(None, min_length=3, max_length=200)
     prompt: Optional[str] = Field(None, min_length=10)
-    points: Optional[int] = Field(None, ge=1, le=10000)
+    ranking_point: Optional[int] = Field(None, ge=1, le=10000)
+    treat_point: Optional[int] = Field(None, ge=0, le=10000)
+    decoding_point: Optional[int] = Field(None, ge=0, le=100)
+    perception_point: Optional[int] = Field(None, ge=0, le=100)
+    logic_point: Optional[int] = Field(None, ge=0, le=100)
+    resilience_point: Optional[int] = Field(None, ge=0, le=100)
+    arcane_point: Optional[int] = Field(None, ge=0, le=100)
+    insight_point: Optional[int] = Field(None, ge=0, le=100)
     hint_cost: Optional[int] = Field(None, ge=0, le=1000)
     max_attempts: Optional[int] = Field(None, ge=1, le=100)
     point_decay_per_attempt: Optional[int] = Field(None, ge=0, le=100)
@@ -42,7 +56,14 @@ class ChallengeResponse(BaseModel):
     type: str
     title: str
     prompt: str
-    points: int
+    ranking_point: int
+    treat_point: int
+    decoding_point: int
+    perception_point: int
+    logic_point: int
+    resilience_point: int
+    arcane_point: int
+    insight_point: int
     hint_cost: int
     max_attempts: Optional[int] = None
     point_decay_per_attempt: int

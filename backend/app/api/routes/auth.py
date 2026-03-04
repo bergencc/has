@@ -8,6 +8,7 @@ from datetime import datetime, timezone
 from app.core.database import get_db
 from app.core.config import settings
 from app.core.security import create_access_token, get_current_user
+from app.core.rewards import sync_dog_tag
 from app.models.user import User
 from app.schemas.user import TokenResponse, UserResponse, UserUpdate
 
@@ -23,33 +24,6 @@ if settings.google_client_id and settings.google_client_secret:
         server_metadata_url='https://accounts.google.com/.well-known/openid-configuration',
         client_kwargs={'scope': 'openid email profile'},
     )
-
-
-def get_dog_tag_for_total(total_attributes: int) -> str:
-    if total_attributes >= 550:
-        return "enigma"
-    if total_attributes >= 451:
-        return "oracle"
-    if total_attributes >= 401:
-        return "codebreaker"
-    if total_attributes >= 301:
-        return "scout"
-    return "witness"
-
-
-def get_total_attributes(user: User) -> int:
-    return (
-        user.decoding
-        + user.perception
-        + user.logic
-        + user.resilience
-        + user.arcane
-        + user.insight
-    )
-
-
-def sync_dog_tag(user: User) -> None:
-    user.dog_tag = get_dog_tag_for_total(get_total_attributes(user))
 
 
 def extract_institution(email: str) -> str | None:
@@ -212,15 +186,12 @@ async def update_me(
         current_user: User = Depends(get_current_user),
         db: AsyncSession = Depends(get_db)
 ):
-    """Update current user profile."""
+    """Profile updates are currently disabled."""
     update_data = update.model_dump(exclude_unset=True)
-
-    for key, value in update_data.items():
-        setattr(current_user, key, value)
-
-    sync_dog_tag(current_user)
-
-    await db.commit()
-    await db.refresh(current_user)
+    if update_data:
+        raise HTTPException(
+            status_code=status.HTTP_400_BAD_REQUEST,
+            detail="Profile updates are disabled for now."
+        )
 
     return UserResponse.model_validate(current_user)

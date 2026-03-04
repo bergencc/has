@@ -1,12 +1,13 @@
 from fastapi import APIRouter, Depends, HTTPException, status
 from sqlalchemy.ext.asyncio import AsyncSession
-from sqlalchemy import select, and_
+from sqlalchemy import select
 from sqlalchemy.orm import selectinload
 from datetime import datetime, timezone
 from typing import List
 
 from app.core.database import get_db
 from app.core.security import get_current_user, get_current_admin
+from app.core.rewards import apply_team_member_reward_delta
 from app.models.user import User
 from app.models.team import Team, TeamMember
 from app.models.event import Event, EventRegistration, EventLeaderboard
@@ -86,75 +87,103 @@ async def check_challenge_unlocked(db: AsyncSession, challenge: Challenge, team_
     return True
 
 
-async def update_leaderboard(db: AsyncSession, event_id: int, team_id: int, event_start: datetime):
-    """Update leaderboard for a team."""
-    # Get all correct attempts for this team in this event
-    result = await db.execute(
-        select(Attempt)
-        .join(Challenge)
-        .where(
-            Challenge.event_id == event_id,
-            Attempt.team_id == team_id,
-            Attempt.is_correct == True
-        )
-    )
-
-    correct_attempts = result.scalars().all()
-
-    # Get all attempts (for wrong count)
-    result = await db.execute(
-        select(Attempt)
-        .join(Challenge)
-        .where(
-            Challenge.event_id == event_id,
-            Attempt.team_id == team_id,
-            Attempt.is_correct == False
-        )
-    )
-
-    wrong_attempts = result.scalars().all()
-
-    # Get hint uses
-    result = await db.execute(
-        select(HintUse)
-        .join(Challenge)
-        .where(
-            Challenge.event_id == event_id,
-            HintUse.team_id == team_id
-        )
-    )
-
-    hints = result.scalars().all()
-
-    # Calculate stats
-    total_points = sum(a.points_awarded for a in correct_attempts)
-    completed = len(correct_attempts)
-    hints_used = len(hints)
-    wrong_count = len(wrong_attempts)
-
-    # Calculate time to last solve
-    if correct_attempts:
-        last_solve = max(a.submitted_at for a in correct_attempts)
-        total_time = int((last_solve - event_start).total_seconds())
-    else:
-        total_time = None
-
-    # Update leaderboard
+async def get_or_create_leaderboard(db: AsyncSession, event_id: int, team_id: int) -> EventLeaderboard:
     result = await db.execute(
         select(EventLeaderboard).where(
             EventLeaderboard.event_id == event_id,
             EventLeaderboard.team_id == team_id
         )
     )
-
     leaderboard = result.scalar_one_or_none()
 
-    if leaderboard:
-        leaderboard.total_points = total_points
-        leaderboard.completed_challenges = completed
-        leaderboard.total_time_seconds = total_time
-        leaderboard.hints_used = hints_used
-        leaderboard.wrong_attempts = wrong_count
+    if leaderboard is None:
+        leaderboard = EventLeaderboard(event_id=event_id, team_id=team_id)
+        db.add(leaderboard)
+        await db.flush()
+
+    return leaderboard
+
+
+async def settle_event_outcomes(db: AsyncSession, event: Event) -> None:
+    now = datetime.now(timezone.utc)
+    if now <= event.ends_at:
+        return
+
+    result = await db.execute(
+        select(Challenge).where(Challenge.event_id == event.id, Challenge.is_active == True)
+    )
+    active_challenges = result.scalars().all()
+    active_challenge_ids = {c.id for c in active_challenges}
+
+    result = await db.execute(
+        select(EventRegistration).where(
+            EventRegistration.event_id == event.id,
+            EventRegistration.status == "registered",
+            EventRegistration.outcome_applied == False,
+        )
+    )
+    pending_registrations = result.scalars().all()
+
+    for registration in pending_registrations:
+        team_id = registration.team_id
+        leaderboard = await get_or_create_leaderboard(db, event.id, team_id)
+
+        result = await db.execute(
+            select(Attempt.challenge_id)
+            .join(Challenge, Challenge.id == Attempt.challenge_id)
+            .where(
+                Attempt.team_id == team_id,
+                Attempt.is_correct == True,
+                Challenge.event_id == event.id,
+                Challenge.is_active == True,
+            )
+        )
+        solved_ids = set(result.scalars().all())
+        unsolved_challenges = [c for c in active_challenges if c.id not in solved_ids]
+
+        for challenge in unsolved_challenges:
+            leaderboard.total_points -= challenge.ranking_point
+            await apply_team_member_reward_delta(
+                db,
+                team_id=team_id,
+                treat=-challenge.treat_point,
+                decoding=-challenge.decoding_point,
+                perception=-challenge.perception_point,
+                logic=-challenge.logic_point,
+                resilience=-challenge.resilience_point,
+                arcane=-challenge.arcane_point,
+                insight=-challenge.insight_point,
+            )
+
+        event_solved = len(active_challenge_ids) > 0 and solved_ids.issuperset(active_challenge_ids)
+        if event_solved:
+            leaderboard.total_points += event.ranking_point
+            await apply_team_member_reward_delta(
+                db,
+                team_id=team_id,
+                treat=event.treat_point,
+                decoding=event.decoding_point,
+                perception=event.perception_point,
+                logic=event.logic_point,
+                resilience=event.resilience_point,
+                arcane=event.arcane_point,
+                insight=event.insight_point,
+            )
+        else:
+            leaderboard.total_points -= event.ranking_point
+            await apply_team_member_reward_delta(
+                db,
+                team_id=team_id,
+                treat=-event.treat_point,
+                decoding=-event.decoding_point,
+                perception=-event.perception_point,
+                logic=-event.logic_point,
+                resilience=-event.resilience_point,
+                arcane=-event.arcane_point,
+                insight=-event.insight_point,
+            )
+
+        registration.outcome_applied = True
 
 
 # Admin routes
@@ -280,6 +309,7 @@ async def list_challenges_for_event(
 
     membership, registration = team_data
     team_id = membership.team_id
+    await settle_event_outcomes(db, event)
 
     # Get challenges
     result = await db.execute(
@@ -330,7 +360,7 @@ async def list_challenges_for_event(
         wrong_attempts = len([a for a in attempts if not a.is_correct])
         hint_penalty = sum(hu.penalty_applied for hu in hint_uses)
         attempt_penalty = wrong_attempts * challenge.point_decay_per_attempt
-        points_possible = max(0, challenge.points - hint_penalty - attempt_penalty)
+        points_possible = max(0, challenge.ranking_point - hint_penalty - attempt_penalty)
 
         responses.append(ChallengeStatusResponse(
             challenge=ChallengeResponse(
@@ -339,7 +369,14 @@ async def list_challenges_for_event(
                 type=challenge.type,
                 title=challenge.title,
                 prompt=challenge.prompt if is_unlocked else "🔒 Complete previous challenges to unlock",
-                points=challenge.points,
+                ranking_point=challenge.ranking_point,
+                treat_point=challenge.treat_point,
+                decoding_point=challenge.decoding_point,
+                perception_point=challenge.perception_point,
+                logic_point=challenge.logic_point,
+                resilience_point=challenge.resilience_point,
+                arcane_point=challenge.arcane_point,
+                insight_point=challenge.insight_point,
                 hint_cost=challenge.hint_cost,
                 max_attempts=challenge.max_attempts,
                 point_decay_per_attempt=challenge.point_decay_per_attempt,
@@ -384,6 +421,7 @@ async def submit_answer(
         )
 
     event = challenge.event
+    await settle_event_outcomes(db, event)
 
     # Check event is active
     if not event.is_active:
@@ -446,26 +484,7 @@ async def submit_answer(
     normalized = Challenge.normalize_answer(attempt_data.answer)
     is_correct = challenge.check_answer(attempt_data.answer)
 
-    # Calculate points
-    points_awarded = 0
-
-    if is_correct:
-        # Get hint penalty
-        result = await db.execute(
-            select(HintUse).where(
-                HintUse.challenge_id == challenge.id,
-                HintUse.team_id == team_id
-            )
-        )
-
-        hint_uses = result.scalars().all()
-        hint_penalty = sum(hu.penalty_applied for hu in hint_uses)
-
-        # Get attempt penalty
-        wrong_attempts = len([a for a in previous_attempts if not a.is_correct])
-        attempt_penalty = wrong_attempts * challenge.point_decay_per_attempt
-
-        points_awarded = max(0, challenge.points - hint_penalty - attempt_penalty)
+    points_awarded = challenge.ranking_point if is_correct else 0
 
     # Create attempt
     attempt = Attempt(
@@ -480,9 +499,25 @@ async def submit_answer(
 
     db.add(attempt)
 
-    # Update leaderboard if correct
+    leaderboard = await get_or_create_leaderboard(db, event.id, team_id)
+
     if is_correct:
-        await update_leaderboard(db, event.id, team_id, event.starts_at)
+        leaderboard.total_points += points_awarded
+        leaderboard.completed_challenges += 1
+        leaderboard.total_time_seconds = int((attempt.submitted_at - event.starts_at).total_seconds())
+        await apply_team_member_reward_delta(
+            db,
+            team_id=team_id,
+            treat=challenge.treat_point,
+            decoding=challenge.decoding_point,
+            perception=challenge.perception_point,
+            logic=challenge.logic_point,
+            resilience=challenge.resilience_point,
+            arcane=challenge.arcane_point,
+            insight=challenge.insight_point,
+        )
+    else:
+        leaderboard.wrong_attempts += 1
 
     await db.commit()
     await db.refresh(attempt)
@@ -536,6 +571,7 @@ async def request_hint(
         )
 
     event = challenge.event
+    await settle_event_outcomes(db, event)
 
     # Check event is active
     if not event.is_active:
@@ -611,6 +647,8 @@ async def request_hint(
     )
 
     db.add(hint_use)
+    leaderboard = await get_or_create_leaderboard(db, event.id, team_id)
+    leaderboard.hints_used += 1
     await db.commit()
 
     return HintResponse(

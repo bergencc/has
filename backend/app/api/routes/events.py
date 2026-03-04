@@ -7,6 +7,7 @@ from typing import List
 
 from app.core.database import get_db
 from app.core.security import get_current_user, get_current_admin
+from app.api.routes.challenges import settle_event_outcomes
 from app.models.user import User
 from app.models.team import Team, TeamMember
 from app.models.event import Event, EventRegistration, EventLeaderboard
@@ -32,6 +33,14 @@ def build_event_response(event: Event, teams_count: int = 0, challenges_count: i
         registration_closes_at=event.registration_closes_at,
         min_team_size=event.min_team_size,
         max_team_size=event.max_team_size,
+        ranking_point=event.ranking_point,
+        treat_point=event.treat_point,
+        decoding_point=event.decoding_point,
+        perception_point=event.perception_point,
+        logic_point=event.logic_point,
+        resilience_point=event.resilience_point,
+        arcane_point=event.arcane_point,
+        insight_point=event.insight_point,
         team_lock_mode=event.team_lock_mode,
         rules=event.rules,
         status=event.status,
@@ -362,6 +371,8 @@ async def get_event_leaderboard(
             status_code=status.HTTP_404_NOT_FOUND,
             detail="Event not found"
         )
+
+    await settle_event_outcomes(db, event)
 
     # Get leaderboard entries
     result = await db.execute(
