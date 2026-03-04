@@ -1,24 +1,13 @@
 import React, { useState } from 'react';
 import { Ghost } from 'lucide-react';
-import { Button, Card, Alert } from '@/components/ui';
-import { api } from '@/lib/api';
+import { Button, Card } from '@/components/ui';
 
 export function LoginPage() {
     const [googleLoading, setGoogleLoading] = useState(false);
-    const [error, setError] = useState('');
 
-    const handleGoogleLogin = async () => {
-        setError('');
+    const handleGoogleLogin = () => {
         setGoogleLoading(true);
-
-        try {
-            const { auth_url } = await api.getGoogleAuthUrl();
-            window.location.href = auth_url;
-        } catch (err: unknown) {
-            const error = err as { response?: { data?: { detail?: string } } };
-            setError(error.response?.data?.detail || 'Google sign-in failed');
-            setGoogleLoading(false);
-        }
+        window.location.href = '/api/auth/google';
     };
 
     return (
@@ -38,12 +27,6 @@ export function LoginPage() {
                     </div>
 
                     <Card className="p-6">
-                        {error && (
-                            <div className="mb-4">
-                                <Alert type="error">{error}</Alert>
-                            </div>
-                        )}
-
                         <Button
                             type="button"
                             variant="secondary"

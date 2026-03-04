@@ -10,7 +10,7 @@ from app.core.database import get_db
 from app.core.config import settings
 from app.core.security import create_access_token, get_current_user
 from app.models.user import User
-from app.schemas.user import TokenResponse, UserResponse, GoogleAuthUrl, UserUpdate
+from app.schemas.user import TokenResponse, UserResponse, UserUpdate
 
 router = APIRouter(prefix="/auth", tags=["Authentication"])
 
@@ -49,9 +49,9 @@ def extract_institution(email: str) -> str | None:
     return domain
 
 
-@router.get("/google", response_model=GoogleAuthUrl)
-async def google_auth_url(request: Request):
-    """Get Google OAuth URL."""
+@router.get("/google")
+async def google_auth(request: Request):
+    """Start Google OAuth flow."""
     if not settings.google_client_id:
         raise HTTPException(
             status_code=status.HTTP_501_NOT_IMPLEMENTED,
@@ -59,12 +59,7 @@ async def google_auth_url(request: Request):
         )
 
     redirect_uri = settings.google_redirect_uri
-    url = await oauth.google.create_authorization_url(redirect_uri)
-
-    # Store state in session
-    request.session['oauth_state'] = url['state']
-
-    return GoogleAuthUrl(auth_url=url['url'])
+    return await oauth.google.authorize_redirect(request, redirect_uri)
 
 
 @router.get("/google/callback")

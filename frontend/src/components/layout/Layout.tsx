@@ -13,7 +13,7 @@ export function Layout() {
             <footer className="border-t border-phantom-900/20 py-6">
                 <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
                     <p className="text-center text-mist-500 text-sm">
-                        &copy; {new Date().getFullYear()} Hide and Seek. SGA, SAB and BOSF.
+                        &copy; {new Date().getFullYear()} Hide and Seek. Bergen Open Source Foundation.
                     </p>
                 </div>
             </footer>
