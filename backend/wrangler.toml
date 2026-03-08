@@ -1,0 +1,4 @@
+name = "has-api"
+main = "app/main.py"  
+compatibility_date = "2026-03-05"
+compatibility_flags = ["python_workers"]
