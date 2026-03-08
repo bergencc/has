@@ -120,6 +120,15 @@ Run from `frontend/`:
 - `npm run preview` Preview production build
 - `npm run lint` Lint the codebase
 
+## Cloudflare Python Worker deploy note
+For backend deploys with Wrangler Python Workers, dependencies must be in `backend/cf-requirements.txt`.
+If you export from `uv`, use:
+
+```bash
+cd backend
+uv export --format requirements-txt --no-dev -o cf-requirements.txt
+```
+
 ## Contributing
 See `CONTRIBUTING.md` for contribution guidelines and local development notes.
 
