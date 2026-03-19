@@ -17,13 +17,11 @@ services:
 
   api:
     build: .
-    env_file: .env
+    env_file: .env.local
     ports:
       - "8000:8000"
     depends_on:
       db:
-        condition: service_healthy
-      redis:
         condition: service_healthy
 
 volumes:

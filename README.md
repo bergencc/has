@@ -56,15 +56,26 @@ The app will be available at `http://localhost:5173`.
 Set `DEBUG=true` in `backend/.env`, then use the dev login form in the UI. In production, Google OAuth is expected.
 
 ## Docker (backend + infra)
-You can run Postgres, Redis, and the API via Docker:
+You can run Postgres and the API via Docker for local development:
 
 ```bash
 cd backend
-# Create backend/.env before starting
+# Create backend/.env.local before starting
 docker compose up --build
 ```
 
 The API will be available at `http://localhost:8000`.
+
+## Docker with Supabase (remote DB)
+If you want to run the API against Supabase in Docker (no local postgres):
+
+```bash
+cd backend
+# Create backend/.env.supabase with your Supabase DB URL
+docker compose -f docker-compose.yml -f docker-compose.supabase.yml up --build
+```
+
+The API will also be available at `http://localhost:8000`.
 
 ## Configuration
 The backend reads environment variables from `backend/.env`.
