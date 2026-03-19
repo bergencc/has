@@ -5,9 +5,11 @@ import { Button, Card } from '@/components/ui';
 export function LoginPage() {
     const [googleLoading, setGoogleLoading] = useState(false);
 
+    const apiBase = import.meta.env.VITE_API_BASE || '/api';
+
     const handleGoogleLogin = () => {
         setGoogleLoading(true);
-        window.location.href = '/api/auth/google';
+        window.location.href = `${apiBase}/auth/google`;
     };
 
     return (
