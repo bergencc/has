@@ -34,7 +34,7 @@ class Settings(BaseSettings):
     join_request_expiry_hours: int = 24
 
     class Config:
-        env_file = ".env"
+        env_file = None
 
 
 @lru_cache()
