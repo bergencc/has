@@ -4,7 +4,6 @@ Authentication utilities for JWT token management and user verification.
 Provides password hashing, token creation/verification, and FastAPI
 dependency functions for protecting routes.
 """
-
 from datetime import datetime, timedelta, timezone
 from typing import Optional
 from jose import JWTError, jwt
@@ -36,13 +35,18 @@ def create_access_token(data: dict, expires_delta: Optional[timedelta] = None) -
     Returns:
         A signed JWT string.
     """
+
     to_encode = data.copy()
+
     if expires_delta:
         expire = datetime.now(timezone.utc) + expires_delta
     else:
         expire = datetime.now(timezone.utc) + timedelta(hours=settings.jwt_expiration_hours)
+
     to_encode.update({"exp": expire})
+
     encoded_jwt = jwt.encode(to_encode, settings.secret_key, algorithm=settings.jwt_algorithm)
+
     return encoded_jwt
 
 
@@ -58,6 +62,7 @@ def verify_token(token: str) -> Optional[dict]:
     """
     try:
         payload = jwt.decode(token, settings.secret_key, algorithms=[settings.jwt_algorithm])
+
         return payload
     except JWTError:
         return None
@@ -86,6 +91,7 @@ async def get_current_user(
     """
     token = credentials.credentials
     payload = verify_token(token)
+
     if payload is None:
         raise HTTPException(
             status_code=status.HTTP_401_UNAUTHORIZED,
@@ -94,6 +100,7 @@ async def get_current_user(
         )
 
     user_id = payload.get("sub")
+
     if user_id is None:
         raise HTTPException(
             status_code=status.HTTP_401_UNAUTHORIZED,
@@ -110,11 +117,13 @@ async def get_current_user(
 
     result = await db.execute(select(User).where(User.id == user_id_int))
     user = result.scalar_one_or_none()
+
     if user is None:
         raise HTTPException(
             status_code=status.HTTP_401_UNAUTHORIZED,
             detail="User not found",
         )
+
     return user
 
 
@@ -139,6 +148,7 @@ async def get_current_admin(current_user: User = Depends(get_current_user)) -> U
             status_code=status.HTTP_403_FORBIDDEN,
             detail="Admin access required",
         )
+
     return current_user
 
 
@@ -165,4 +175,5 @@ def get_optional_user(
             return await get_current_user(credentials, db)
         except HTTPException:
             return None
+            
     return _get_optional_user
