@@ -1,0 +1,9 @@
+version: "3.9"
+
+services:
+  api:
+    build: .
+    env_file: .env.supabase
+    ports:
+      - "8000:8000"
+    restart: unless-stopped
