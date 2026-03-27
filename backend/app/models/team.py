@@ -160,6 +160,7 @@ class TeamMember(Base):
         """Check if the member is currently locked from leaving the team."""
         if self.left_at is not None:
             return False
+
         return datetime.now(timezone.utc) < self.lock_expires_at
 
     @property
@@ -272,6 +273,7 @@ class JoinRequestVote(Base):
 
     id: Mapped[int] = mapped_column(primary_key=True, index=True)
     join_request_id: Mapped[int] = mapped_column(ForeignKey("join_requests.id"), nullable=False, index=True)
+    
     voter_id: Mapped[int] = mapped_column(ForeignKey("users.id"), nullable=False, index=True)
     vote: Mapped[str] = mapped_column(String(10), nullable=False)  # accept, reject
     voted_at: Mapped[datetime] = mapped_column(
