@@ -20,30 +20,28 @@ class Settings(BaseSettings):
     Returns:
         Settings: An instance of the Settings class with the configuration values.
     """
-    # App
+
+    # application properties
     app_name: str = "Hide and Seek"
     debug: bool = False
     secret_key: str = ""
 
-    # Database
+    # database properties
     database_url: str = ""
 
-    # Redis
-    redis_url: str = ""
-
-    # JWT
+    # jwt properties
     jwt_algorithm: str = ""
     jwt_expiration_hours: int = 24 * 7  # 1 week
 
-    # Google OAuth
+    # google oauth properties
     google_client_id: Optional[str] = None
     google_client_secret: Optional[str] = None
     google_redirect_uri: str = ""
 
-    # Frontend
+    # frontend properties
     frontend_url: str = ""
 
-    # Team settings
+    # team settings
     team_lock_days: int = 60
     max_team_size: int = 4
     min_team_size: int = 1
