@@ -1,3 +1,9 @@
+"""Challenge model for the Hide and Seek application.
+
+This file defines the Challenge model which represents a challenge in the Hide and Seek game.
+It also defines the Attempt and HintUse models which represent attempts to solve a challenge and the use of hints.
+
+"""
 from datetime import datetime, timezone
 from sqlalchemy import String, DateTime, ForeignKey, Integer, Text, JSON, Boolean
 from sqlalchemy.orm import Mapped, mapped_column, relationship
@@ -14,6 +20,11 @@ if TYPE_CHECKING:
 
 
 class Challenge(Base):
+    """Challenge model representing a challenge in the Hide and Seek game.
+    
+    Base: Base is the declarative base class from SQLAlchemy which allows us to define our models as Python classes.
+    
+    """
     __tablename__ = "challenges"
 
     id: Mapped[int] = mapped_column(primary_key=True, index=True)
@@ -112,6 +123,9 @@ class Challenge(Base):
 
 
 class Attempt(Base):
+    """Attempt model representing an attempt to solve a challenge in the Hide and Seek game. 
+    Base: Base is the declarative base class from SQLAlchemy which allows us to define our models as Python classes.
+    """
     __tablename__ = "attempts"
 
     id: Mapped[int] = mapped_column(primary_key=True, index=True)
@@ -136,10 +150,16 @@ class Attempt(Base):
     user: Mapped["User"] = relationship(back_populates="attempts")
 
     def __repr__(self) -> str:
+        """ String representation of the Attempt model for debugging purposes.
+        
+        """
         return f"<Attempt challenge={self.challenge_id} team={self.team_id} correct={self.is_correct}>"
 
 
 class HintUse(Base):
+    """HintUse model representing the use of a hint for a challenge in the Hide and Seek game.
+    
+    """
     __tablename__ = "hint_uses"
 
     id: Mapped[int] = mapped_column(primary_key=True, index=True)
@@ -161,4 +181,7 @@ class HintUse(Base):
     user: Mapped["User"] = relationship(back_populates="hint_uses")
 
     def __repr__(self) -> str:
+        """ String representation of the HintUse model for debugging purposes.
+        
+        """
         return f"<HintUse challenge={self.challenge_id} team={self.team_id} hint={self.hint_index}>"
